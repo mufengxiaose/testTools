@@ -64,10 +64,14 @@ class mobileTools(object):
         '''安装package'''
         file_path = entry_import.get()
         # file = str(file_path).replace(" ", "")
-        if ".apk" in str(file_path):
+        status = self.runCmd("adb devices").strip()
+        if status == "List of devices attached":
+            return tkinter.messagebox.showinfo(message="手机未链接\n请重新链接手机")
+        elif ".apk" in str(file_path):
             p = "adb shell pm list packages"
             if "com.huobionchainwallet" in self.runCmd(p):
-                return self.runCmd("adb install -r " + file_path)
+                self.runCmd("adb install -r " + file_path)
+                messagebox.showinfo(message="install success")
             else:
                 self.runCmd("adb install " + file_path)
                 messagebox.showinfo(message="正在安装")
@@ -81,28 +85,36 @@ class mobileTools(object):
 
     def uninstall_package(self):
         '''卸载安装包'''
+        status = self.runCmd("adb devices").strip()
         str = "adb uninstall com.huobionchainwallet"
-        self.runCmd(str)
-        if "com.huobionchainwallet" in self.runCmd(str):
-            messagebox.showinfo(message="卸载失败")
+        if status == "List of devices attached":
+            return tkinter.messagebox.showinfo(message="手机未链接\n请重新链接手机")
         else:
-            messagebox.showinfo(message="卸载成功")
+            self.runCmd(str)
+            if "com.huobionchainwallet" in self.runCmd(str):
+                messagebox.showinfo(message="卸载失败")
+            else:
+                messagebox.showinfo(message="卸载成功")
 
     def screen_Shot(self):
         """截图"""
         file_path = os.getcwd()
         screenshotFile = file_path + r'\screenshot'
         ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        if not os.path.exists(screenshotFile):
-            os.mkdir(screenshotFile)
+        status = self.runCmd("adb devices").strip()
         str = "adb shell screencap -p /sdcard/" +  ctime + ".png"
         pull_str = "adb pull /sdcard/" + ctime + ".png" + " " + screenshotFile
-        self.runCmd(str)
-        self.runCmd(pull_str)
-        lists = os.listdir(screenshotFile)
-        lists.sort(key=lambda fn:os.path.getmtime(screenshotFile + '/' + fn))
-        file_new = os.path.join(screenshotFile, lists[-1])
-        return file_new
+        if not os.path.exists(screenshotFile):
+            os.mkdir(screenshotFile)
+        if status == "List of devices attached":
+            return tkinter.messagebox.showinfo(message="手机未链接\n请重新链接手机")
+        else:
+            self.runCmd(str)
+            self.runCmd(pull_str)
+            lists = os.listdir(screenshotFile)
+            lists.sort(key=lambda fn: os.path.getmtime(screenshotFile + '/' + fn))
+            file_new = os.path.join(screenshotFile, lists[-1])
+            return file_new
 
     def show_packages_3(self):
         '''查看三方库'''
@@ -111,8 +123,8 @@ class mobileTools(object):
     def get_host_ip(self):
         '''获取电脑ip'''
         _ip = socket.gethostbyname(socket.gethostname())
-        ip_label = tkinter.Label(window, text="ip: " + _ip, font=("宋体", 14, ))
-        ip_label.place(x=400, y=200)
+        ip_label = tkinter.Label(window, text="ip: " + _ip, font=("宋体", 14, ), fg="blue")
+        ip_label.place(x=400, y=150)
         return ip_label
 
     def get_hash_md5(self):
@@ -131,6 +143,8 @@ class mobileTools(object):
         qr.add_data(qc_info)
         qr.make(fit=True)
         img = qr.make_image()
+        # qc_label = tkinter.Label(window, image=img.show())
+        # qc_label.place(x=200, y=200)
         return img.show()
 
     def share_screen(self):
@@ -146,13 +160,13 @@ class mobileTools(object):
         '''显示截图'''
         global img0
         photo = Image.open(mobileTools().screen_Shot())
-        photo = photo.resize((280, 500))
+        photo = photo.resize((250, 500))
         img0 = ImageTk.PhotoImage(photo)
         img1 = tkinter.Label(window, image=img0)
         img1.place(x=750, y=50)
         show_path = tkinter.Label(window, text="截图保存路径: " + mobileTools().screen_Shot(),
-                                  font=("微软雅黑", 10))
-        show_path.place(x=100, y=160)
+                                  font=("微软雅黑", 10), fg="green")
+        show_path.place(x=600, y=10)
 
 def deviceConnect():
     '''设备链接状态文案'''
@@ -186,7 +200,7 @@ deviceLogPath.insert(1.0, "日志存放路径")
 deviceLogPath.place(x=92, y=46)
 #安装卸载
 importFileBt = tkinter.Button(window, text='导入安装包', command=mobileTools().get_file_path)
-entry_import = tkinter.Entry(window, width=60, bd=3, font=("宋体", 10, 'bold'))
+entry_import = tkinter.Entry(window, width=60, bd=2, font=("宋体", 11, 'bold'))
 installBt = tkinter.Button(window, text="安装", width=13, command=mobileTools().install_package)
 uninstallBt = tkinter.Button(window, text="卸载钱包", width=20, command=mobileTools().uninstall_package)
 entry_import.delete(0, tkinter.END)
@@ -200,16 +214,16 @@ screenShotBt = tkinter.Button(window, text="截图", width=20, command=mobileToo
 screenShotBt.place(x=200, y=120)
 #实时屏幕
 shareScreenBt = tkinter.Button(window, text="屏幕共享",width=20, command=mobileTools().share_screen)
-shareScreenBt.place(x=10, y=200)
+shareScreenBt.place(x=10, y=150)
 #获取ip
 getHostIpBt = tkinter.Button(window, text="获取ip地址", width=20, command=mobileTools().get_host_ip)
-getHostIpBt.place(x=200, y=200)
+getHostIpBt.place(x=200, y=150)
 #二维码
-qrInfoText = tkinter.Text(window, width=60, height=5, fg='blue', bd=2, font='Helvetica -16')
+qrInfoText = tkinter.Text(window, width=60, height=4, fg='black', bd=2, font='Helvetica -16')
 qrInfoBt = tkinter.Button(window, text='生成二维码', width=30, command=mobileTools().qrcode_generation)
 qrInfoText.delete(1.0, tkinter.END)
-qrInfoText.insert(1.0, "二维码信息")
-qrInfoText.place(x=10, y=260)
-qrInfoBt.place(x=10, y=360)
+qrInfoText.insert(1.0, "输入生成二维码信息")
+qrInfoText.place(x=10, y=200)
+qrInfoBt.place(x=10, y=280)
 
 window.mainloop()
