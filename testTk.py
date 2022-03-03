@@ -63,25 +63,27 @@ class mobileTools(object):
     def install_package(self):
         '''安装package'''
         file_path = entry_import.get()
-        # file = str(file_path).replace(" ", "")
-        status = self.runCmd("adb devices").strip()
-        if status == "List of devices attached":
-            return tkinter.messagebox.showinfo(message="手机未链接\n请重新链接手机")
-        elif ".apk" in str(file_path):
-            p = "adb shell pm list packages"
-            if "com.huobionchainwallet" in self.runCmd(p):
-                self.runCmd("adb install -r " + file_path)
-                messagebox.showinfo(message="install success")
-            else:
-                self.runCmd("adb install " + file_path)
-                messagebox.showinfo(message="正在安装")
-                time.sleep(1)
-                if "com.huobionchainwallet" in self.runCmd(p):
-                    messagebox.showinfo(message="安装成功")
-                else:
-                    messagebox.showinfo(message="安装失败")
+        if  " " in str(file_path):
+            tkinter.messagebox.showinfo(message="apk路径有空格\n安装失败")
         else:
-            messagebox.showinfo(message="确认文件是否正确")
+            status = self.runCmd("adb devices").strip()
+            if status == "List of devices attached":
+                return tkinter.messagebox.showinfo(message="手机未链接\n请重新链接手机")
+            elif ".apk" in str(file_path):
+                p = "adb shell pm list packages"
+                if "com.huobionchainwallet" in self.runCmd(p):
+                    self.runCmd("adb install -r " + file_path)
+                    messagebox.showinfo(message="install success")
+                else:
+                    self.runCmd("adb install " + file_path)
+                    messagebox.showinfo(message="正在安装")
+                    time.sleep(1)
+                    if "com.huobionchainwallet" in self.runCmd(p):
+                        messagebox.showinfo(message="安装成功")
+                    else:
+                        messagebox.showinfo(message="安装失败")
+            else:
+                tkinter.messagebox.showinfo(message="确认文件是否正确")
 
     def uninstall_package(self):
         '''卸载安装包'''
