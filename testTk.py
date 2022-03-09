@@ -2,9 +2,11 @@
 import os
 import sys
 sys.path.append(os.path.abspath("."))
+import threading
 import time
 import tkinter
 import socket
+import pyqrcode
 import hashlib
 import qrcode
 import platform
@@ -47,7 +49,7 @@ class mobileTools(object):
         ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         file = "adb logcat -v threadtime > " + log_file + "/" + ctime + ".log"
         log1 = subprocess.Popen(args=file, shell=True, stdin=subprocess.PIPE, stdout=None)
-        time.sleep(2)
+        time.sleep(15)
         os.system("taskkill /t /f /pid {}".format(log1.pid))
         lists = os.listdir(log_file)
         lists.sort(key=lambda fn:os.path.getmtime(log_file + '/' + fn))
@@ -76,8 +78,6 @@ class mobileTools(object):
                     messagebox.showinfo(message="install success")
                 else:
                     self.runCmd("adb install " + file_path)
-                    messagebox.showinfo(message="正在安装")
-                    time.sleep(1)
                     if "com.huobionchainwallet" in self.runCmd(p):
                         messagebox.showinfo(message="安装成功")
                     else:
@@ -147,6 +147,8 @@ class mobileTools(object):
         img = qr.make_image()
         # qc_label = tkinter.Label(window, image=img.show())
         # qc_label.place(x=200, y=200)
+        print(img)
+        # qc_win = tkinter.Tk
         return img.show()
 
     def share_screen(self):
@@ -161,14 +163,49 @@ class mobileTools(object):
     def show_screenshot_pic(self):
         '''显示截图'''
         global img0
+        ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         photo = Image.open(mobileTools().screen_Shot())
         photo = photo.resize((250, 500))
         img0 = ImageTk.PhotoImage(photo)
         img1 = tkinter.Label(window, image=img0)
         img1.place(x=750, y=50)
-        show_path = tkinter.Label(window, text="截图保存路径: " + mobileTools().screen_Shot(),
+        show_path = tkinter.Label(window,
+                                  text=os.path.abspath(".") + r'\screenshot' + ctime + ".png",
                                   font=("微软雅黑", 10), fg="green")
-        show_path.place(x=600, y=10)
+        show_path.place(x=710, y=10)
+
+    def recording_screen(self):
+        '''录屏'''
+
+        pid_list = []
+        str = "adb shell screenrecord /sdcard/"
+        ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        str1 = str + ctime + ".mp4"
+        self.record_file = r'/sdcard/' + ctime + '.png'
+        self.record_sc = subprocess.Popen(args=str1, shell=True, stdin=subprocess.PIPE, stdout=None)
+        self.record_sc
+        self.record_pid = self.record_sc.pid
+        pid_list.append(self.record_pid)
+        print(pid_list)
+
+
+    def stop_task(self):
+        """停止录屏"""
+        pass
+
+
+    def get_record_file(self):
+        '''取出录屏文件'''
+        self.stop_task()
+        file_path = os.getcwd()
+        _file = file_path + r'\Record'
+        if os.path.exists(_file):
+            pass
+        else:
+            os.mkdir(_file)
+        str = "adb pull " + self.record_file + _file
+        get_file = self.runCmd(str)
+        return get_file
 
 def deviceConnect():
     '''设备链接状态文案'''
@@ -220,12 +257,19 @@ shareScreenBt.place(x=10, y=150)
 #获取ip
 getHostIpBt = tkinter.Button(window, text="获取ip地址", width=20, command=mobileTools().get_host_ip)
 getHostIpBt.place(x=200, y=150)
+#录屏
+RecoreBt = tkinter.Button(window, text="开始录屏", width=20, command=mobileTools().recording_screen)
+RecoreBt.place(x=10, y=180)
+#结束任务
+StopBt = tkinter.Button(window, text="结束录屏", width=20, command=mobileTools().stop_task)
+StopBt.place(x=200, y=180)
 #二维码
 qrInfoText = tkinter.Text(window, width=60, height=4, fg='black', bd=2, font='Helvetica -16')
 qrInfoBt = tkinter.Button(window, text='生成二维码', width=30, command=mobileTools().qrcode_generation)
 qrInfoText.delete(1.0, tkinter.END)
 qrInfoText.insert(1.0, "输入生成二维码信息")
-qrInfoText.place(x=10, y=200)
-qrInfoBt.place(x=10, y=280)
+qrInfoText.place(x=10, y=220)
+qrInfoBt.place(x=10, y=300)
+
 
 window.mainloop()
