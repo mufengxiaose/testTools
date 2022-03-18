@@ -21,6 +21,7 @@ class mobileTools(object):
     """
     这是一个主类，主要封装了一些常用操作手机方法
     """
+
     def runCmd(self, str):
         '''启动cmd'''
         cmd = os.popen(str)
@@ -40,12 +41,9 @@ class mobileTools(object):
 
     def get_log(self):
         '''获取设备日志'''
-        file_path = os.getcwd()
-        log_file = file_path + r'\mobile_log'
-        if os.path.exists(log_file):
-            pass
-        else:
-            os.mkdir(log_file)
+        _file = '/mobile'
+        self.creat_file(fileName=_file)
+        log_file = os.getcwd() + _file
         ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         file = "adb logcat -v threadtime > " + log_file + "/" + ctime + ".log"
         log1 = subprocess.Popen(args=file, shell=True, stdin=subprocess.PIPE, stdout=None)
@@ -100,22 +98,21 @@ class mobileTools(object):
 
     def screen_Shot(self):
         """截图"""
-        file_path = os.getcwd()
-        screenshotFile = file_path + r'\screenshot'
+        _file = "/screenShot"
+        self.creat_file(fileName=_file)
+        scr_file = os.getcwd() + _file
         ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         status = self.runCmd("adb devices").strip()
         str = "adb shell screencap -p /sdcard/" +  ctime + ".png"
-        pull_str = "adb pull /sdcard/" + ctime + ".png" + " " + screenshotFile
-        if not os.path.exists(screenshotFile):
-            os.mkdir(screenshotFile)
+        pull_str = "adb pull /sdcard/" + ctime + ".png" + " " + scr_file
         if status == "List of devices attached":
             return tkinter.messagebox.showinfo(message="手机未链接\n请重新链接手机")
         else:
             self.runCmd(str)
             self.runCmd(pull_str)
-            lists = os.listdir(screenshotFile)
-            lists.sort(key=lambda fn: os.path.getmtime(screenshotFile + '/' + fn))
-            file_new = os.path.join(screenshotFile, lists[-1])
+            lists = os.listdir(scr_file)
+            lists.sort(key=lambda fn: os.path.getmtime(scr_file + '/' + fn))
+            file_new = os.path.join(scr_file, lists[-1])
             return file_new
 
     def show_packages_3(self):
@@ -133,23 +130,48 @@ class mobileTools(object):
         '''md5加密'''
         pass
 
+    def creat_file(self, file_path):
+        """
+        判断目录是否存在，不存在则创建
+        :param file_path:
+        :return:
+        """
+        self._file = os.getcwd() + file_path
+        if not os.path.exists(self._file):
+            return os.mkdir(self._file)
+        else:
+            pass
+
     def qrcode_generation(self):
         '''二维码生成'''
-        qc_info = qrInfoText.get("1.0", tkinter.END)
-        qr = qrcode.QRCode(
+        file_path = "/qrcodeImg"
+        self.creat_file(file_path=file_path)
+        qr_file = os.getcwd() + file_path
+        self.qc_info = qrInfoText.get("1.0", tkinter.END)
+        self.qr = qrcode.QRCode(
             version=3,
             error_correction=qrcode.constants.ERROR_CORRECT_Q,
             box_size=10,
             border=4
         )
-        qr.add_data(qc_info)
-        qr.make(fit=True)
-        img = qr.make_image()
-        # qc_label = tkinter.Label(window, image=img.show())
-        # qc_label.place(x=200, y=200)
-        print(img)
-        # qc_win = tkinter.Tk
-        return img.show()
+        self.qr.add_data(self.qc_info)
+        self.qr.make(fit=True)
+        self.qr_img = self.qr.make_image()
+        return self.qr_img.save(qr_file + "/img.png")
+
+    def show_qr_img(self):
+        """
+        展示二维码图片
+        :return:
+        """
+        self.qrcode_generation()
+        self.img = Image.open(os.getcwd() + "/qrcodeImg/img.png")
+        self.photo = ImageTk.PhotoImage(self.img)
+        self.topWiondow = tkinter.Toplevel(window)
+        self.topWiondow.geometry("400x400")
+        self.topWiondow.title("二维码")
+        self.qc_label = tkinter.Label(self.topWiondow, image=self.photo)
+        self.qc_label.pack()
 
     def share_screen(self):
         '''手机同屏显示'''
@@ -183,7 +205,7 @@ class mobileTools(object):
         str1 = str + ctime + ".mp4"
         self.record_file = r'/sdcard/' + ctime + '.png'
         self.record_sc = subprocess.Popen(args=str1, shell=True, stdin=subprocess.PIPE, stdout=None)
-        self.record_sc
+        # self.record_sc
         self.record_pid = self.record_sc.pid
         pid_list.append(self.record_pid)
         print(pid_list)
@@ -197,6 +219,8 @@ class mobileTools(object):
     def get_record_file(self):
         '''取出录屏文件'''
         self.stop_task()
+        _file = "/Record"
+        self.creat_file(file_path=_file)
         file_path = os.getcwd()
         _file = file_path + r'\Record'
         if os.path.exists(_file):
@@ -215,6 +239,7 @@ def show_log_file():
     '''显示日志路径'''
     deviceLogPath.delete(1.0, tkinter.END)
     deviceLogPath.insert(1.0, mobileTools().get_log())
+
 
 
 #创建主窗口
@@ -263,13 +288,15 @@ RecoreBt.place(x=10, y=180)
 #结束任务
 StopBt = tkinter.Button(window, text="结束录屏", width=20, command=mobileTools().stop_task)
 StopBt.place(x=200, y=180)
-#二维码
+#二维码显示
 qrInfoText = tkinter.Text(window, width=60, height=4, fg='black', bd=2, font='Helvetica -16')
-qrInfoBt = tkinter.Button(window, text='生成二维码', width=30, command=mobileTools().qrcode_generation)
+qrInfoBt = tkinter.Button(window, text='生成二维码', width=30, command=mobileTools().show_qr_img)
 qrInfoText.delete(1.0, tkinter.END)
 qrInfoText.insert(1.0, "输入生成二维码信息")
 qrInfoText.place(x=10, y=220)
 qrInfoBt.place(x=10, y=300)
 
 
-window.mainloop()
+if __name__ == '__main__':
+
+    window.mainloop()
