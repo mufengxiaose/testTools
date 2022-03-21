@@ -42,7 +42,7 @@ class mobileTools(object):
     def get_log(self):
         '''获取设备日志'''
         _file = '/mobile'
-        self.creat_file(fileName=_file)
+        self.creat_file(file_path=_file)
         log_file = os.getcwd() + _file
         ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         file = "adb logcat -v threadtime > " + log_file + "/" + ctime + ".log"
@@ -99,7 +99,7 @@ class mobileTools(object):
     def screen_Shot(self):
         """截图"""
         _file = "/screenShot"
-        self.creat_file(fileName=_file)
+        self.creat_file(file_path=_file)
         scr_file = os.getcwd() + _file
         ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         status = self.runCmd("adb devices").strip()
@@ -151,8 +151,8 @@ class mobileTools(object):
         self.qr = qrcode.QRCode(
             version=3,
             error_correction=qrcode.constants.ERROR_CORRECT_Q,
-            box_size=10,
-            border=4
+            box_size=6,
+            border=3,
         )
         self.qr.add_data(self.qc_info)
         self.qr.make(fit=True)
@@ -167,11 +167,8 @@ class mobileTools(object):
         self.qrcode_generation()
         self.img = Image.open(os.getcwd() + "/qrcodeImg/img.png")
         self.photo = ImageTk.PhotoImage(self.img)
-        self.topWiondow = tkinter.Toplevel(window)
-        self.topWiondow.geometry("400x400")
-        self.topWiondow.title("二维码")
-        self.qc_label = tkinter.Label(self.topWiondow, image=self.photo)
-        self.qc_label.pack()
+        self.qc_label = tkinter.Label(window, image=self.photo)
+        self.qc_label.place(x=10, y=340)
 
     def share_screen(self):
         '''手机同屏显示'''
@@ -198,7 +195,6 @@ class mobileTools(object):
 
     def recording_screen(self):
         '''录屏'''
-
         pid_list = []
         str = "adb shell screenrecord /sdcard/"
         ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
@@ -213,7 +209,7 @@ class mobileTools(object):
 
     def stop_task(self):
         """停止录屏"""
-        pass
+        print(self.recording_screen())
 
 
     def get_record_file(self):
