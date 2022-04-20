@@ -2,15 +2,13 @@
 import os
 import sys
 sys.path.append(os.path.abspath("."))
-import threading
 import time
 import tkinter
 import socket
-import pyqrcode
-import hashlib
 import qrcode
 import platform
 from tkinter import messagebox
+from tkinter import ttk
 import subprocess
 import datetime
 from tkinter.filedialog import *
@@ -18,9 +16,6 @@ from PIL import ImageTk, Image
 
 
 class mobileTools(object):
-    """
-    这是一个主类，主要封装了一些常用操作手机方法
-    """
 
     def runCmd(self, str):
         '''启动cmd'''
@@ -41,7 +36,7 @@ class mobileTools(object):
 
     def get_log(self):
         '''获取设备日志'''
-        _file = '/mobile'
+        _file = '/mobile_log'
         self.creat_file(file_path=_file)
         log_file = os.getcwd() + _file
         ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
@@ -122,7 +117,7 @@ class mobileTools(object):
     def get_host_ip(self):
         '''获取电脑ip'''
         _ip = socket.gethostbyname(socket.gethostname())
-        ip_label = tkinter.Label(window, text="ip: " + _ip, font=("宋体", 14, ), fg="blue")
+        ip_label = tkinter.Label(deviceControl, text="ip: " + _ip, font=("宋体", 14, ), fg="blue")
         ip_label.place(x=400, y=150)
         return ip_label
 
@@ -167,8 +162,8 @@ class mobileTools(object):
         self.qrcode_generation()
         self.img = Image.open(os.getcwd() + "/qrcodeImg/img.png")
         self.photo = ImageTk.PhotoImage(self.img)
-        self.qc_label = tkinter.Label(window, image=self.photo)
-        self.qc_label.place(x=10, y=340)
+        self.qc_label = tkinter.Label(qrControl, image=self.photo)
+        self.qc_label.place(x=600, y=10)
 
     def share_screen(self):
         '''手机同屏显示'''
@@ -177,7 +172,7 @@ class mobileTools(object):
         elif (platform.system() == 'Linux'):
             print('Linux系统')
         else:
-            print('其他')
+            os.system("/usr/local/bin/scrcpy")
 
     def show_screenshot_pic(self):
         '''显示截图'''
@@ -186,30 +181,12 @@ class mobileTools(object):
         photo = Image.open(mobileTools().screen_Shot())
         photo = photo.resize((250, 500))
         img0 = ImageTk.PhotoImage(photo)
-        img1 = tkinter.Label(window, image=img0)
+        img1 = tkinter.Label(deviceControl, image=img0)
         img1.place(x=750, y=50)
-        show_path = tkinter.Label(window,
+        show_path = tkinter.Label(deviceControl,
                                   text=os.path.abspath(".") + r'\screenshot' + ctime + ".png",
                                   font=("微软雅黑", 10), fg="green")
         show_path.place(x=710, y=10)
-
-    def recording_screen(self):
-        '''录屏'''
-        pid_list = []
-        str = "adb shell screenrecord /sdcard/"
-        ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        str1 = str + ctime + ".mp4"
-        self.record_file = r'/sdcard/' + ctime + '.png'
-        self.record_sc = subprocess.Popen(args=str1, shell=True, stdin=subprocess.PIPE, stdout=None)
-        # self.record_sc
-        self.record_pid = self.record_sc.pid
-        pid_list.append(self.record_pid)
-        print(pid_list)
-
-
-    def stop_task(self):
-        """停止录屏"""
-        print(self.recording_screen())
 
 
     def get_record_file(self):
@@ -241,28 +218,36 @@ def show_log_file():
 #创建主窗口
 window = tkinter.Tk()
 window.title("Android 测试工具")
-window.geometry("1100x900+10+10")
+window.geometry("1100x650+10+10")
+#Frame
+tabNote = ttk.Notebook()
+deviceControl = ttk.Frame(tabNote) #常用
+qrControl = ttk.Frame(tabNote) # 二维码
+tabNote.add(deviceControl, text="常用")
+tabNote.add(qrControl, text="二维码")
+tabNote.pack(expand=1, fill='both')
+
 #设备状态
-deviceStatus = tkinter.Label(window, text='设备状态')
-deviceStatusText = tkinter.Text(window, width=30, height=1.4, bd=2, fg='blue', font='Helvetica -16')
+deviceStatus = tkinter.Label(deviceControl, text='设备状态')
+deviceStatusText = tkinter.Text(deviceControl, width=30, height=1.4, bd=2, fg='blue', font='Helvetica -16')
 deviceConnect()
-refreshStatusBtn = tkinter.Button(window, text="更新状态", command=deviceConnect)
+refreshStatusBtn = tkinter.Button(deviceControl, text="更新状态", command=deviceConnect)
 deviceStatus.place(x=10, y=11)
 deviceStatusText.place(x=70, y=10)
 refreshStatusBtn.place(x=360, y=4)
 #日志部分
-deviceLogBt = tkinter.Button(window,  text='获取日志', width=10, command=show_log_file)
-deviceLogPath =tkinter.Text(window, fg="blue",
+deviceLogBt = tkinter.Button(deviceControl,  text='获取日志', width=10, command=show_log_file)
+deviceLogPath =tkinter.Text(deviceControl, fg="blue",
                            bd=2, width=60, height=1, font='Helvetica -16')
 deviceLogBt.place(x=10, y=40)
 deviceLogPath.delete(1.0, tkinter.END)
 deviceLogPath.insert(1.0, "日志存放路径")
 deviceLogPath.place(x=92, y=46)
 #安装卸载
-importFileBt = tkinter.Button(window, text='导入安装包', command=mobileTools().get_file_path)
-entry_import = tkinter.Entry(window, width=60, bd=2, font=("宋体", 11, 'bold'))
-installBt = tkinter.Button(window, text="安装", width=13, command=mobileTools().install_package)
-uninstallBt = tkinter.Button(window, text="卸载钱包", width=20, command=mobileTools().uninstall_package)
+importFileBt = tkinter.Button(deviceControl, text='导入安装包', command=mobileTools().get_file_path)
+entry_import = tkinter.Entry(deviceControl, width=60, bd=2, font=("宋体", 11, 'bold'))
+installBt = tkinter.Button(deviceControl, text="安装", width=13, command=mobileTools().install_package)
+uninstallBt = tkinter.Button(deviceControl, text="卸载钱包", width=20, command=mobileTools().uninstall_package)
 entry_import.delete(0, tkinter.END)
 entry_import.insert(0, "apk路径...")
 importFileBt.place(x=10, y=80)
@@ -270,29 +255,23 @@ entry_import.place(x=80, y=88)
 installBt.place(x=570, y=80)
 uninstallBt.place(x=10, y=120)
 #截图
-screenShotBt = tkinter.Button(window, text="截图", width=20, command=mobileTools().show_screenshot_pic)
+screenShotBt = tkinter.Button(deviceControl, text="截图", width=20, command=mobileTools().show_screenshot_pic)
 screenShotBt.place(x=200, y=120)
 #实时屏幕
-shareScreenBt = tkinter.Button(window, text="屏幕共享",width=20, command=mobileTools().share_screen)
+shareScreenBt = tkinter.Button(deviceControl, text="屏幕共享",width=20, command=mobileTools().share_screen)
 shareScreenBt.place(x=10, y=150)
 #获取ip
-getHostIpBt = tkinter.Button(window, text="获取ip地址", width=20, command=mobileTools().get_host_ip)
+getHostIpBt = tkinter.Button(deviceControl, text="获取ip地址", width=20, command=mobileTools().get_host_ip)
 getHostIpBt.place(x=200, y=150)
-#录屏
-RecoreBt = tkinter.Button(window, text="开始录屏", width=20, command=mobileTools().recording_screen)
-RecoreBt.place(x=10, y=180)
-#结束任务
-StopBt = tkinter.Button(window, text="结束录屏", width=20, command=mobileTools().stop_task)
-StopBt.place(x=200, y=180)
+
 #二维码显示
-qrInfoText = tkinter.Text(window, width=60, height=4, fg='black', bd=2, font='Helvetica -16')
-qrInfoBt = tkinter.Button(window, text='生成二维码', width=30, command=mobileTools().show_qr_img)
+qrInfoText = tkinter.Text(qrControl, width=57, height=4, fg='black', bd=2, font='Helvetica -16')
+qrInfoBt = tkinter.Button(qrControl, text='生成二维码', width=30, command=mobileTools().show_qr_img)
 qrInfoText.delete(1.0, tkinter.END)
 qrInfoText.insert(1.0, "输入生成二维码信息")
-qrInfoText.place(x=10, y=220)
-qrInfoBt.place(x=10, y=300)
+qrInfoText.place(x=10, y=10)
+qrInfoBt.place(x=100, y=100)
 
 
 if __name__ == '__main__':
-
     window.mainloop()
