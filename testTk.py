@@ -167,8 +167,9 @@ class App():
 
     def get_host_ip(self):
         '''获取电脑ip'''
-        _ip = socket.gethostbyname(socket.gethostname())
-        ip_label = Label(self.deviceControl, text="ip: " + _ip, font=("宋体", 14, ), fg="blue")
+        get_ip = socket.gethostbyname(socket.gethostname())
+        var_ip = StringVar(value='ip:' + get_ip)
+        ip_label = Label(self.deviceControl, textvariable=var_ip, font=("宋体", 14, ), fg="blue")
         ip_label.place(x=400, y=150)
         return ip_label
 
@@ -201,7 +202,6 @@ class DeviceTools(App):
 
     def __init__(self):
         super(App, self).__init__()
-
 
     def runCmd(self, str):
         '''启动cmd'''
