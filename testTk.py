@@ -221,7 +221,11 @@ class App():
     def wallet_text(self):
         """链信息显示框"""
         self.walletText = Text(self.wallet_key, height=15, width=85,
-                               font=('微软雅黑', '15', ))
+                               font=('微软雅黑', '15',))
+        self.scroll_bar = Scrollbar(self.wallet_key)
+        self.scroll_bar.config(command=self.walletText)
+        self.walletText.config(yscrollcommand=self.scroll_bar.set)
+        self.scroll_bar.place(x=1020, y=29, height=410)
         self.walletText.place(x=1, y=30)
 
     def get_address_datas(self):
