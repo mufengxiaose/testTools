@@ -1,10 +1,14 @@
 # -*- coding:utf-8 -*-
-import os
+import os, sys
+curPath = os.path.abspath(os.path.dirname('.'))
+rootPath = os.path.split(curPath)[0]
+sys.path.append(rootPath)
 import subprocess
 import threading
 import datetime
 import socket
 import qrcode
+import xlrd
 from tkinter import *
 import platform
 from PIL import Image as Img
@@ -18,6 +22,9 @@ import time
 class App():
 
     def __init__(self):
+
+        self.workbook = xlrd.open_workbook("address.xls")
+        self.sheet = self.workbook.sheet_by_name("Sheet1")
         '''初始化页面'''
         frame = Frame(window)
         frame.pack()
@@ -32,14 +39,18 @@ class App():
         self.share_screen_btn()
         self.show_qrcode_btn()
         self.deviceConnect()
+        self.chain_combobox()
+        self.wallet_text()
 
     def tab(self):
         '''tab栏'''
         self.tabNode = ttk.Notebook()
         self.deviceControl = Frame(self.tabNode)
         self.qrControl = Frame(self.tabNode)
+        self.wallet_key = Frame(self.tabNode)
         self.tabNode.add(self.deviceControl, text="手机")
         self.tabNode.add(self.qrControl, text="二维码")
+        self.tabNode.add(self.wallet_key, text="钱包地址")
         self.tabNode.pack(expand=1, fill='both')
 
     def status(self):
@@ -198,6 +209,50 @@ class App():
         self.qc_label = Label(self.qrControl, image=self.photo)
         self.qc_label.place(x=600, y=10)
 
+    def chain_combobox(self):
+        """主链显示combobox"""
+        Label(self.wallet_key, text="主链选择：",).place(x=1, y=1)
+        self.chainCombobox = ttk.Combobox(self.wallet_key)
+        self.chainCombobox['value'] = self.get_chain_datas()
+        self.chainCombobox.current(0)
+        self.chainCombobox.place(x=80, y=1)
+        self.chainCombobox.bind("<<ComboboxSelected>>", self.show_address)
+
+    def wallet_text(self):
+        """链信息显示框"""
+        self.walletText = Text(self.wallet_key, height=15, width=85,
+                               font=('微软雅黑', '15', ))
+        self.walletText.place(x=1, y=30)
+
+    def get_address_datas(self):
+        rows = self.sheet.nrows
+        datas = []
+        for i in range(2, rows):
+            datas.append(self.sheet.row_values(i))
+        return datas
+
+    def get_chain_datas(self):
+        chain_datas = []
+        rows = self.sheet.nrows
+        for i in range(2, rows):
+            chain_datas.append(self.sheet.row_values(i)[0])
+        chain_datas = list(set(chain_datas))
+        chain_datas.sort()
+        return chain_datas
+
+    def show_address(self, chain):
+        self.chain = chain
+        self.chain = self.chainCombobox.get()
+        self.walletText.delete(1.0, END)
+        rows = self.sheet.nrows
+        for i in range(2, rows):
+            if self.chain == self.get_address_datas()[i][0]:
+                chain_address = self.get_address_datas()[i][1]
+                chain_key = self.get_address_datas()[i][2]
+                chain_info = "链：" + self.chain + "\n" + \
+                             "链地址: " + chain_address + "\n" + "私钥/助记词： " + chain_key + "\n" + "\n"
+                self.walletText.insert(1.0, chain_info)
+
 class DeviceTools(App):
 
     def __init__(self):
@@ -285,8 +340,6 @@ class DeviceTools(App):
             print('Linux系统')
         else:
             os.system("/usr/local/bin/scrcpy")
-
-
 
 
 if __name__ == '__main__':
