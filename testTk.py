@@ -87,7 +87,7 @@ class App():
     def install_package_btn(self):
         '''安装apk'''
         self.entry_import = Entry(self.deviceControl, width=60, bd=2, font=("宋体", 11))
-        self.installBt = Button(self.deviceControl, text="安装", width=13, command=self.install_package)
+        self.installBt = Button(self.deviceControl, text="安装", width=13, command=self.install_thread)
         self.entry_import.delete(0, END)
         self.entry_import.insert(0, "apk路径...")
         self.entry_import.place(x=80, y=88)
@@ -141,26 +141,32 @@ class App():
     def install_package(self):
         '''安装package'''
         file_path = self.entry_import.get()
-        print(file_path)
-        if  " " in str(file_path):
+        if " " in str(file_path):
             messagebox.showinfo(message="apk路径有空格\n安装失败")
         else:
             status = DeviceTools().runCmd("adb devices").strip()
             if status == "List of devices attached":
                 return messagebox.showinfo(message="手机未链接\n请重新链接手机")
             elif ".apk" in str(file_path):
-                p = "adb shell pm list packages"
-                if "com.huobionchainwallet" in DeviceTools().runCmd(p):
-                    DeviceTools().runCmd("adb install -r " + file_path)
-                    messagebox.showinfo(message="install success")
+                p = "adb install "
+                messagebox.showinfo(message="正在执行\n请耐心等待几秒钟...")
+                if "Success" in DeviceTools().runCmd(p + file_path):
+                    messagebox.showinfo(message="安装成功")
                 else:
-                    DeviceTools().runCmd("adb install " + file_path)
-                    if "com.huobionchainwallet" in DeviceTools().runCmd(p):
-                        messagebox.showinfo(message="安装成功")
-                    else:
-                        messagebox.showinfo(message="安装失败")
+                    messagebox.showinfo(message="安装失败")
             else:
                 messagebox.showinfo(message="确认文件是否正确")
+
+    def install_thread(self):
+        """启用安装线程"""
+        t1 = threading.Thread(target=self.install_package)
+        t1.start()
+
+    def log_thread(self):
+        """启用日志线程"""
+        t1 = threading.Thread(target=DeviceTools().show_log_file)
+        t1.start()
+
 
     def show_screenshot_pic(self):
         '''显示截图'''
