@@ -1,8 +1,5 @@
 # -*- coding:utf-8 -*-
-import os, sys
-curPath = os.path.abspath(os.path.dirname('.'))
-rootPath = os.path.split(curPath)[0]
-sys.path.append(rootPath)
+import os
 import subprocess
 import threading
 import datetime
@@ -41,6 +38,7 @@ class App():
         self.deviceConnect()
         self.chain_combobox()
         self.wallet_text()
+        self.search_button()
 
     def tab(self):
         '''tab栏'''
@@ -96,7 +94,7 @@ class App():
     def uninstall_wallet(self):
         '''卸载钱包'''
         self.uninstallBtn = Button(self.deviceControl, text="卸载钱包", width=20,
-                                   command=DeviceTools().uninstall_huobi)
+                                   command=DeviceTools().unistall_thread)
         self.uninstallBtn.place(x=10, y=120)
 
     def screen_shot(self):
@@ -149,7 +147,6 @@ class App():
                 return messagebox.showinfo(message="手机未链接\n请重新链接手机")
             elif ".apk" in str(file_path):
                 p = "adb install "
-                messagebox.showinfo(message="正在执行\n请耐心等待几秒钟...")
                 if "Success" in DeviceTools().runCmd(p + file_path):
                     messagebox.showinfo(message="安装成功")
                 else:
@@ -160,6 +157,11 @@ class App():
     def install_thread(self):
         """启用安装线程"""
         t1 = threading.Thread(target=self.install_package)
+        t1.start()
+
+    def unistall_thread(self):
+        """卸载线程"""
+        t1 = threading.Thread(target=DeviceTools().uninstall_huobi)
         t1.start()
 
     def log_thread(self):
@@ -260,8 +262,29 @@ class App():
                 chain_address = self.get_address_datas()[i][1]
                 chain_key = self.get_address_datas()[i][2]
                 chain_info = "链：" + self.chain + "\n" + \
-                             "链地址: " + chain_address + "\n" + "私钥/助记词： " + chain_key + "\n" + "\n"
+                             "链地址: " + chain_address + \
+                             "\n" + "私钥/助记词： " + chain_key + "\n\n"
                 self.walletText.insert(1.0, chain_info)
+
+    def search_button(self):
+        self.searchBtn = Button(self.wallet_key, text="搜索", command=self.search)
+        self.searchBtn.place(x=249, y=1, height=23, width=60)
+
+    def search(self):
+        self.get_text = str(self.chainCombobox.get()).upper()
+        print(self.get_text)
+        self.walletText.delete(1.0, END)
+        rows = self.sheet.nrows
+        for row in range(2, rows):
+            if self.get_text in self.get_address_datas()[row][0]:
+                chain = self.get_address_datas()[row][0]
+                chain_address = self.get_address_datas()[row][1]
+                chain_key = self.get_address_datas()[row][2]
+                chain_info = "链：" + chain + "\n" + \
+                             "链地址: " + chain_address + \
+                             "\n" + "私钥/助记词： " + chain_key + "\n\n"
+                self.walletText.insert(1.0, chain_info)
+
 
 class DeviceTools(App):
 
