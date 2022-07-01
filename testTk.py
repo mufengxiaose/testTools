@@ -39,6 +39,8 @@ class App():
         self.chain_combobox()
         self.wallet_text()
         self.search_button()
+        self.reset_button()
+
 
     def tab(self):
         '''tab栏'''
@@ -225,6 +227,7 @@ class App():
         self.chainCombobox.current(0)
         self.chainCombobox.place(x=80, y=1)
         self.chainCombobox.bind("<<ComboboxSelected>>", self.show_address)
+        self.chainCombobox.bind('<Return>', self.show_address)
 
     def wallet_text(self):
         """链信息显示框"""
@@ -254,7 +257,7 @@ class App():
 
     def show_address(self, chain):
         self.chain = chain
-        self.chain = self.chainCombobox.get()
+        self.chain = str(self.chainCombobox.get()).upper()
         self.walletText.delete(1.0, END)
         rows = self.sheet.nrows
         for i in range(2, rows):
@@ -267,12 +270,13 @@ class App():
                 self.walletText.insert(1.0, chain_info)
 
     def search_button(self):
+        '''地址搜索按钮'''
         self.searchBtn = Button(self.wallet_key, text="搜索", command=self.search)
         self.searchBtn.place(x=249, y=1, height=23, width=60)
 
     def search(self):
+        '''搜索匹配方法'''
         self.get_text = str(self.chainCombobox.get()).upper()
-        print(self.get_text)
         self.walletText.delete(1.0, END)
         rows = self.sheet.nrows
         for row in range(2, rows):
@@ -284,6 +288,17 @@ class App():
                              "链地址: " + chain_address + \
                              "\n" + "私钥/助记词： " + chain_key + "\n\n"
                 self.walletText.insert(1.0, chain_info)
+
+    def reset_button(self):
+        '''重置按钮'''
+        self.reset_bt = Button(self.deviceControl, text="重置", command=self.resetThread,
+                               width=20)
+        self.reset_bt.place(x=10, y=180)
+
+    def resetThread(self):
+        t = threading.Thread(target=DeviceTools().resetBtFunc)
+        t.start()
+        messagebox.showinfo(message="重连成功")
 
 
 class DeviceTools(App):
@@ -374,6 +389,12 @@ class DeviceTools(App):
         else:
             os.system("/usr/local/bin/scrcpy")
 
+    def resetBtFunc(self):
+        '''定义重置devices功能'''
+        str = "adb kill-server"
+        str1 = "adb devices"
+        self.runCmd(str)
+        self.runCmd(str1)
 
 if __name__ == '__main__':
     window = Tk()
