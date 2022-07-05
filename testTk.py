@@ -234,12 +234,14 @@ class App():
         self.walletText = Text(self.wallet_key, height=15, width=85,
                                font=('微软雅黑', '15',))
         self.scroll_bar = Scrollbar(self.wallet_key)
-        self.scroll_bar.config(command=self.walletText)
+        self.scroll_bar.config(command=self.walletText.yview)
+        # self.scroll_bar.bind('')
         self.walletText.config(yscrollcommand=self.scroll_bar.set)
         self.scroll_bar.place(x=1020, y=29, height=410)
         self.walletText.place(x=1, y=30)
 
     def get_address_datas(self):
+        '''获取address.xls内容'''
         rows = self.sheet.nrows
         datas = []
         for i in range(2, rows):
@@ -247,6 +249,7 @@ class App():
         return datas
 
     def get_chain_datas(self):
+        '''获取链名称'''
         chain_datas = []
         rows = self.sheet.nrows
         for i in range(2, rows):
@@ -256,12 +259,13 @@ class App():
         return chain_datas
 
     def show_address(self, chain):
+        '''entry搜索功能封装'''
         self.chain = chain
-        self.chain = str(self.chainCombobox.get()).upper()
+        self.chain = self.chainCombobox.get()
         self.walletText.delete(1.0, END)
         rows = self.sheet.nrows
         for i in range(2, rows):
-            if self.chain == self.get_address_datas()[i][0]:
+            if self.chain == self.get_address_datas()[i][0] or str(self.chain).upper() == self.get_address_datas()[i][0]:
                 chain_address = self.get_address_datas()[i][1]
                 chain_key = self.get_address_datas()[i][2]
                 chain_info = "链：" + self.chain + "\n" + \
@@ -288,6 +292,7 @@ class App():
                              "链地址: " + chain_address + \
                              "\n" + "私钥/助记词： " + chain_key + "\n\n"
                 self.walletText.insert(1.0, chain_info)
+
 
     def reset_button(self):
         '''重置按钮'''
