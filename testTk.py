@@ -20,8 +20,8 @@ class App():
 
     def __init__(self):
 
-        self.workbook = xlrd.open_workbook("address.xls")
-        self.sheet = self.workbook.sheet_by_name("Sheet1")
+        # self.workbook = xlrd.open_workbook("address.xls")
+        # self.sheet = self.workbook.sheet_by_name("Sheet1")
         '''初始化页面'''
         frame = Frame(window)
         frame.pack()
@@ -36,9 +36,9 @@ class App():
         self.share_screen_btn()
         self.show_qrcode_btn()
         self.deviceConnect()
-        self.chain_combobox()
-        self.wallet_text()
-        self.search_button()
+        # self.chain_combobox()
+        # self.wallet_text()
+        # self.search_button()
         self.reset_button()
 
 
@@ -219,79 +219,79 @@ class App():
         self.qc_label = Label(self.qrControl, image=self.photo)
         self.qc_label.place(x=600, y=10)
 
-    def chain_combobox(self):
-        """主链显示combobox"""
-        Label(self.wallet_key, text="主链选择：",).place(x=1, y=1)
-        self.chainCombobox = ttk.Combobox(self.wallet_key)
-        self.chainCombobox['value'] = self.get_chain_datas()
-        self.chainCombobox.current(0)
-        self.chainCombobox.place(x=80, y=1)
-        self.chainCombobox.bind("<<ComboboxSelected>>", self.show_address)
-        self.chainCombobox.bind('<Return>', self.show_address)
-
-    def wallet_text(self):
-        """链信息显示框"""
-        self.walletText = Text(self.wallet_key, height=15, width=85,
-                               font=('微软雅黑', '15',))
-        self.scroll_bar = Scrollbar(self.wallet_key)
-        self.scroll_bar.config(command=self.walletText.yview)
-        # self.scroll_bar.bind('')
-        self.walletText.config(yscrollcommand=self.scroll_bar.set)
-        self.scroll_bar.place(x=1020, y=29, height=410)
-        self.walletText.place(x=1, y=30)
-
-    def get_address_datas(self):
-        '''获取address.xls内容'''
-        rows = self.sheet.nrows
-        datas = []
-        for i in range(2, rows):
-            datas.append(self.sheet.row_values(i))
-        return datas
-
-    def get_chain_datas(self):
-        '''获取链名称'''
-        chain_datas = []
-        rows = self.sheet.nrows
-        for i in range(2, rows):
-            chain_datas.append(self.sheet.row_values(i)[0])
-        chain_datas = list(set(chain_datas))
-        chain_datas.sort()
-        return chain_datas
-
-    def show_address(self, chain):
-        '''entry搜索功能封装'''
-        self.chain = chain
-        self.chain = self.chainCombobox.get()
-        self.walletText.delete(1.0, END)
-        rows = self.sheet.nrows
-        for i in range(2, rows):
-            if self.chain == self.get_address_datas()[i][0] or str(self.chain).upper() == self.get_address_datas()[i][0]:
-                chain_address = self.get_address_datas()[i][1]
-                chain_key = self.get_address_datas()[i][2]
-                chain_info = "链：" + self.chain + "\n" + \
-                             "链地址: " + chain_address + \
-                             "\n" + "私钥/助记词： " + chain_key + "\n\n"
-                self.walletText.insert(1.0, chain_info)
-
-    def search_button(self):
-        '''地址搜索按钮'''
-        self.searchBtn = Button(self.wallet_key, text="搜索", command=self.search)
-        self.searchBtn.place(x=249, y=1, height=23, width=60)
-
-    def search(self):
-        '''搜索匹配方法'''
-        self.get_text = str(self.chainCombobox.get()).upper()
-        self.walletText.delete(1.0, END)
-        rows = self.sheet.nrows
-        for row in range(2, rows):
-            if self.get_text in self.get_address_datas()[row][0]:
-                chain = self.get_address_datas()[row][0]
-                chain_address = self.get_address_datas()[row][1]
-                chain_key = self.get_address_datas()[row][2]
-                chain_info = "链：" + chain + "\n" + \
-                             "链地址: " + chain_address + \
-                             "\n" + "私钥/助记词： " + chain_key + "\n\n"
-                self.walletText.insert(1.0, chain_info)
+    # def chain_combobox(self):
+    #     """主链显示combobox"""
+    #     Label(self.wallet_key, text="主链选择：",).place(x=1, y=1)
+    #     self.chainCombobox = ttk.Combobox(self.wallet_key)
+    #     self.chainCombobox['value'] = self.get_chain_datas()
+    #     self.chainCombobox.current(0)
+    #     self.chainCombobox.place(x=80, y=1)
+    #     self.chainCombobox.bind("<<ComboboxSelected>>", self.show_address)
+    #     self.chainCombobox.bind('<Return>', self.show_address)
+    #
+    # def wallet_text(self):
+    #     """链信息显示框"""
+    #     self.walletText = Text(self.wallet_key, height=15, width=85,
+    #                            font=('微软雅黑', '15',))
+    #     self.scroll_bar = Scrollbar(self.wallet_key)
+    #     self.scroll_bar.config(command=self.walletText.yview)
+    #     # self.scroll_bar.bind('')
+    #     self.walletText.config(yscrollcommand=self.scroll_bar.set)
+    #     self.scroll_bar.place(x=1020, y=29, height=410)
+    #     self.walletText.place(x=1, y=30)
+    #
+    # def get_address_datas(self):
+    #     '''获取address.xls内容'''
+    #     rows = self.sheet.nrows
+    #     datas = []
+    #     for i in range(2, rows):
+    #         datas.append(self.sheet.row_values(i))
+    #     return datas
+    #
+    # def get_chain_datas(self):
+    #     '''获取链名称'''
+    #     chain_datas = []
+    #     rows = self.sheet.nrows
+    #     for i in range(2, rows):
+    #         chain_datas.append(self.sheet.row_values(i)[0])
+    #     chain_datas = list(set(chain_datas))
+    #     chain_datas.sort()
+    #     return chain_datas
+    #
+    # def show_address(self, chain):
+    #     '''entry搜索功能封装'''
+    #     self.chain = chain
+    #     self.chain = self.chainCombobox.get()
+    #     self.walletText.delete(1.0, END)
+    #     rows = self.sheet.nrows
+    #     for i in range(2, rows):
+    #         if self.chain == self.get_address_datas()[i][0] or str(self.chain).upper() == self.get_address_datas()[i][0]:
+    #             chain_address = self.get_address_datas()[i][1]
+    #             chain_key = self.get_address_datas()[i][2]
+    #             chain_info = "链：" + self.chain + "\n" + \
+    #                          "链地址: " + chain_address + \
+    #                          "\n" + "私钥/助记词： " + chain_key + "\n\n"
+    #             self.walletText.insert(1.0, chain_info)
+    #
+    # def search_button(self):
+    #     '''地址搜索按钮'''
+    #     self.searchBtn = Button(self.wallet_key, text="搜索", command=self.search)
+    #     self.searchBtn.place(x=249, y=1, height=23, width=60)
+    #
+    # def search(self):
+    #     '''搜索匹配方法'''
+    #     self.get_text = str(self.chainCombobox.get()).upper()
+    #     self.walletText.delete(1.0, END)
+    #     rows = self.sheet.nrows
+    #     for row in range(2, rows):
+    #         if self.get_text in self.get_address_datas()[row][0]:
+    #             chain = self.get_address_datas()[row][0]
+    #             chain_address = self.get_address_datas()[row][1]
+    #             chain_key = self.get_address_datas()[row][2]
+    #             chain_info = "链：" + chain + "\n" + \
+    #                          "链地址: " + chain_address + \
+    #                          "\n" + "私钥/助记词： " + chain_key + "\n\n"
+    #             self.walletText.insert(1.0, chain_info)
 
 
     def reset_button(self):
