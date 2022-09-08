@@ -122,7 +122,7 @@ class QrcodeApp(Frame):
         Frame.__init__(self, master)
         self.pack()
         # 设置frame
-        self.qrcodeFrame = Frame(self)
+        self.qrcodeFrame = Frame(self, width=1000)
         self.qrcodeFrame.grid()
         # 输入文字
         self.input_text = Text(self.qrcodeFrame, height=6, width=100)
@@ -362,7 +362,7 @@ if __name__ == '__main__':
     root.title("test tools")
     root.geometry("1000x600+10+10")
 
-    tabNote = ttk.Notebook(root)
+    tabNote = ttk.Notebook(root, width=900, height=500)
     tabNote.add(DevicesApp(tabNote), text="手机常用功能")
     tabNote.add(TranslaterApp(tabNote), text="翻译")
     tabNote.add(QrcodeApp(tabNote), text="二维码生成")
