@@ -12,11 +12,12 @@ import time
 import qrcode
 import requests
 import platform
-import subprocess
+import datetime
 import datetime
 import hashlib
 import random
 import threading
+import subprocess
 from tkinter.filedialog import *
 from tkinter import *
 from tkinter import ttk
@@ -126,10 +127,10 @@ class QrcodeApp(Frame):
         self.qrcodeFrame.grid()
         # 输入文字
         self.input_text = Text(self.qrcodeFrame, height=6, width=100)
-        self.input_text.grid(row=0)
+        self.input_text.grid(row=0, column=0, sticky=NSEW)
         # 生成二维码按钮
         self.button = Button(self.qrcodeFrame, text="生成二维码", command=self.showQrcodeImg)
-        self.button.grid(row=1, sticky=W)
+        self.button.grid(row=0, column=1, sticky=NSEW)
 
     def getText(self):
         '''获取文字内容'''
@@ -315,6 +316,7 @@ class DevicesApp(Frame):
     def install_package(self):
         '''安装package'''
         file_path = self.fileEntry.get()
+        print(file_path)
         if " " in str(file_path):
             messagebox.showinfo(message="apk路径有空格\n安装失败")
         else:
@@ -336,6 +338,65 @@ class DevicesApp(Frame):
         t1.start()
 
 
+class TimesstampHash(Frame):
+    '''时间戳、md5转换'''
+    def __init__(self, master):
+        Frame.__init__(self, master)
+        self.pack()
+
+        self.frame = Frame(self)
+        self.frame.pack()
+
+        self.times_stamp_wedgit()
+
+    def times_stamp_wedgit(self):
+        '''时间戳'''
+        now_time_label = Label(self.frame, text="现在")
+        now_time_label.grid(row=0, column=0, sticky=W)
+
+        now_time = StringVar()
+        now_time = datetime.datetime.now()
+        # self.timesstamp_now = Label(self.frame, textvariable=now_time)
+        self.timesstamp_now = Label(self.frame, text=now_time)
+        self.timesstamp_now.grid(row=0, column=1, sticky=W)
+
+        self.timesstamp_label = Label(self.frame, text="时间戳")
+        self.timesstamp_label.grid(row=1, column=0, sticky=W)
+
+        self.timesstamp_text = Text(self.frame, height=1, width=30)
+        self.timesstamp_text.grid(row=1, column=1, sticky=W)
+        data = ["秒(s)", "毫秒(s)"]
+        self.combobox = ttk.Combobox(self.frame,width=7)
+        self.combobox['value'] = data
+        self.combobox.current(0)
+        self.combobox.grid(row=1, column=2, sticky=W)
+        conversionBt = Button(self.frame, text="转换")
+        conversionBt.grid(row=1, column=3, sticky=NSEW)
+
+        self.datetime_text = Text(self.frame, height=1, width=30)
+        self.datetime_text.grid(row=1, column=4, sticky=W)
+        self.beijing_label = Label(self.frame, text="北京时间")
+        self.beijing_label.grid(row=1, column=5, sticky=W)
+
+        self.time_0 = Label(self.frame, text="时间")
+        self.time_0.grid(row=2, column=0, sticky=W)
+
+        self.time_0_text = Text(self.frame, height=1, width=30)
+        self.time_0_text.grid(row=2, column=1, sticky=NSEW)
+        self.beijing_label1 = Label(self.frame, text="北京时间").grid(row=2, column=2, sticky=W)
+        conversionBt1 = Button(self.frame, text="转换")
+        conversionBt1.grid(row=2, column=3, sticky=NSEW)
+        self.timesstamp_text1 = Text(self.frame, height=1, width=30)
+        self.timesstamp_text1.grid(row=2, column=4, sticky=W)
+        data = ["秒(s)", "毫秒(s)"]
+        self.combobox1 = ttk.Combobox(self.frame, width=7)
+        self.combobox1['value'] = data
+        self.combobox1.current(0)
+        self.combobox1.grid(row=2, column=5, sticky=W)
+
+
+    def hash_conversion_wedgit(self):
+        pass
 
 class CommonFunc():
     '''通用功能封装'''
@@ -362,11 +423,13 @@ if __name__ == '__main__':
     root.title("test tools")
     root.geometry("1000x600+10+10")
 
-    tabNote = ttk.Notebook(root, width=900, height=500)
+    tabNote = ttk.Notebook(root, width=1000, height=600)
     tabNote.add(DevicesApp(tabNote), text="手机常用功能")
     tabNote.add(TranslaterApp(tabNote), text="翻译")
     tabNote.add(QrcodeApp(tabNote), text="二维码生成")
+    # tabNote.add(DeviceLog(tabNote), text="日志")
+    tabNote.add(TimesstampHash(tabNote), text="时间戳md5转换")
     tabNote.pack(expand=0, anchor='nw')
-
+    # NodebookFunc(master=root)
 
     root.mainloop()
