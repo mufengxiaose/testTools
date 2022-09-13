@@ -349,42 +349,46 @@ class TimesstampHash(Frame):
 
         self.times_stamp_wedgit()
 
+    # 时间转换
     def times_stamp_wedgit(self):
         '''时间戳'''
         now_time_label = Label(self.frame, text="现在")
         now_time_label.grid(row=0, column=0, sticky=W)
 
-        now_time = StringVar()
-        now_time = datetime.datetime.now()
-        # self.timesstamp_now = Label(self.frame, textvariable=now_time)
-        self.timesstamp_now = Label(self.frame, text=now_time)
-        self.timesstamp_now.grid(row=0, column=1, sticky=W)
+        self.now_time = StringVar()
+        self.now_time_label = Label(self.frame, text="", font=('Helvetica', 20), fg='red')
+        self.now_time_label.grid(row=0, column=1, sticky=W)
+        self.update_time()
 
+
+        # 时间戳转时间
         self.timesstamp_label = Label(self.frame, text="时间戳")
         self.timesstamp_label.grid(row=1, column=0, sticky=W)
 
-        self.timesstamp_text = Text(self.frame, height=1, width=30)
-        self.timesstamp_text.grid(row=1, column=1, sticky=W)
+        self.timesstamp_entry = Entry(self.frame, width=30)
+        self.timesstamp_entry.grid(row=1, column=1, sticky=W)
+        self.timesstamp_entry.insert(1, int(time.time()))
         data = ["秒(s)", "毫秒(s)"]
         self.combobox = ttk.Combobox(self.frame,width=7)
         self.combobox['value'] = data
         self.combobox.current(0)
         self.combobox.grid(row=1, column=2, sticky=W)
-        conversionBt = Button(self.frame, text="转换")
+        conversionBt = Button(self.frame, text="转换", command=self.timesstampToTime)
         conversionBt.grid(row=1, column=3, sticky=NSEW)
 
         self.datetime_text = Text(self.frame, height=1, width=30)
         self.datetime_text.grid(row=1, column=4, sticky=W)
         self.beijing_label = Label(self.frame, text="北京时间")
         self.beijing_label.grid(row=1, column=5, sticky=W)
-
+        # 时间转时间戳
         self.time_0 = Label(self.frame, text="时间")
         self.time_0.grid(row=2, column=0, sticky=W)
 
-        self.time_0_text = Text(self.frame, height=1, width=30)
-        self.time_0_text.grid(row=2, column=1, sticky=NSEW)
+        self.time_to_imestamp_entry = Entry(self.frame, width=30)
+        self.time_to_imestamp_entry.grid(row=2, column=1, sticky=NSEW)
+        self.time_to_imestamp_entry.insert(1, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
         self.beijing_label1 = Label(self.frame, text="北京时间").grid(row=2, column=2, sticky=W)
-        conversionBt1 = Button(self.frame, text="转换")
+        conversionBt1 = Button(self.frame, text="转换", command=self.timeTotimestamp)
         conversionBt1.grid(row=2, column=3, sticky=NSEW)
         self.timesstamp_text1 = Text(self.frame, height=1, width=30)
         self.timesstamp_text1.grid(row=2, column=4, sticky=W)
@@ -394,9 +398,91 @@ class TimesstampHash(Frame):
         self.combobox1.current(0)
         self.combobox1.grid(row=2, column=5, sticky=W)
 
+    def timesstampToTime(self):
+        '''时间戳转日期'''
+        if self.combobox.get() == "秒(s)":
+            time_conversion = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(self.timesstamp_entry.get())))
+            self.datetime_text.delete(1.0, END)
+            self.datetime_text.insert(1.0, time_conversion)
+        else:
+            var_time = int(self.timesstamp_entry.get())/1000
+            time_convrsion = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(var_time))
+            # print(time_convrsion)
+            self.datetime_text.delete(1.0, END)
+            self.datetime_text.insert(1.0, time_convrsion)
 
+    def timeTotimestamp(self):
+        '''时间转时间戳'''
+        if self.combobox1.get() == "秒(s)":
+            dt = self.time_to_imestamp_entry.get()
+            time_conversion = int(time.mktime(time.strptime(dt, "%Y-%m-%d %H:%M:%S")))
+            self.timesstamp_text1.delete(1.0, END)
+            self.timesstamp_text1.insert(1.0, time_conversion)
+        else:
+            dt = self.time_to_imestamp_entry.get()
+            time_conversion = int(time.mktime(time.strptime(dt, "%Y-%m-%d %H:%M:%S")))*1000
+            # print(time_conversion)
+            self.timesstamp_text1.delete(1.0, END)
+            self.timesstamp_text1.insert(1.0, time_conversion)
+
+    def update_time(self):
+        '''时间显示'''
+        now = time.strftime("%Y-%m-%d %H:%M:%S") #格式化时间
+        self.now_time_label.configure(text=now) #label时间填充
+        root.after(1000, self.update_time) # 1000 ms后调用
+
+class Md5Transformation(Frame):
+
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.pack()
+
+        self.frame = Frame(self)
+        self.frame.pack()
+
+        self.hash_conversion_wedgit()
+    # md5 转换
     def hash_conversion_wedgit(self):
+        '''md5GUI'''
+
+        r_text = (
+            ("AES", "DES"),
+            ("RC4", "Rabbit"),
+            ("MD5", "TripleDes")
+        )
+
+        self.md5_input_entry = Entry(self.frame)
+        self.md5_input_entry.grid(row=0, column=0, sticky=NSEW, rowspan=3)
+
+        md5_label = Label(self.frame, text="加密选择，部分需要密码")
+        md5_label.grid(row=0, column=1, sticky=NSEW, columnspan=2)
+
+        self.md5_output_entry = Entry(self.frame)
+        self.md5_output_entry.grid(row=0, column=3, rowspan=3)
+
+        for rindex, r in enumerate(r_text):
+            for cindex, c in enumerate(r):
+                self.radioBt = Radiobutton(self.frame, text=c, value=c)
+                self.radioBt.grid(row=rindex+1, column=cindex+1, sticky=W)
+
+        self.encryptionBt = Button(self.frame, text="加密", command=self.encryptionFunc)
+        self.encryptionBt.grid(row=4, column=1, sticky=NSEW)
+
+        self.decryptionBt = Button(self.frame, text="加密")
+        self.decryptionBt.grid(row=4, column=2, sticky=NSEW)
+
+    def encryptionFunc(self):
+        '''加密方法'''
+        print(self.radioBt.getvar())
+
+    def decryptionFunc(self):
+        '''解密方法'''
         pass
+
+
+
+
+
 
 class CommonFunc():
     '''通用功能封装'''
@@ -421,7 +507,7 @@ class CommonFunc():
 if __name__ == '__main__':
     root = Tk()
     root.title("test tools")
-    root.geometry("1000x600+10+10")
+    root.geometry("1000x600+70+10")
 
     tabNote = ttk.Notebook(root, width=1000, height=600)
     tabNote.add(DevicesApp(tabNote), text="手机常用功能")
@@ -429,6 +515,7 @@ if __name__ == '__main__':
     tabNote.add(QrcodeApp(tabNote), text="二维码生成")
     # tabNote.add(DeviceLog(tabNote), text="日志")
     tabNote.add(TimesstampHash(tabNote), text="时间戳md5转换")
+    tabNote.add(Md5Transformation(tabNote), text="加密解密")
     tabNote.pack(expand=0, anchor='nw')
     # NodebookFunc(master=root)
 
