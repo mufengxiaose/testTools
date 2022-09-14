@@ -12,7 +12,7 @@ import time
 import qrcode
 import requests
 import platform
-import datetime
+import base64
 import datetime
 import hashlib
 import random
@@ -24,6 +24,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from PIL import ImageTk
 from PIL import Image as Img
+from Crypto.Cipher import AES
 
 
 class TranslaterApp(Frame):
@@ -441,47 +442,90 @@ class Md5Transformation(Frame):
         self.frame.pack()
 
         self.hash_conversion_wedgit()
-    # md5 转换
+    # 加密解密
     def hash_conversion_wedgit(self):
         '''md5GUI'''
-
         r_text = (
             ("AES", "DES"),
             ("RC4", "Rabbit"),
-            ("MD5", "TripleDes")
+            ("MD5",)
         )
-
-        self.md5_input_entry = Entry(self.frame)
-        self.md5_input_entry.grid(row=0, column=0, sticky=NSEW, rowspan=3)
+        # 输入框
+        self.md5_input_text = Text(self.frame, width=40, font=15)
+        self.md5_input_text.grid(row=0, column=0, sticky=NSEW, rowspan=5)
 
         md5_label = Label(self.frame, text="加密选择，部分需要密码")
         md5_label.grid(row=0, column=1, sticky=NSEW, columnspan=2)
-
-        self.md5_output_entry = Entry(self.frame)
-        self.md5_output_entry.grid(row=0, column=3, rowspan=3)
-
+        # 输出框
+        self.md5_output_text = Text(self.frame, width=40, font=15)
+        self.md5_output_text.grid(row=0, column=3, rowspan=5, sticky=NSEW)
+        # 单选按钮
+        self.v = StringVar()
+        self.v.set("MD5")
         for rindex, r in enumerate(r_text):
             for cindex, c in enumerate(r):
-                self.radioBt = Radiobutton(self.frame, text=c, value=c)
+                self.radioBt = Radiobutton(self.frame, text=c, value=c, variable=self.v, height=1)
                 self.radioBt.grid(row=rindex+1, column=cindex+1, sticky=W)
 
-        self.encryptionBt = Button(self.frame, text="加密", command=self.encryptionFunc)
-        self.encryptionBt.grid(row=4, column=1, sticky=NSEW)
+        self.salt_text = Text(self.frame, height=1, width=10)
+        self.salt_text.grid(row=4, column=1, columnspan=2, sticky=NSEW)
+        self.salt_text.insert(1.0, "密钥")
 
-        self.decryptionBt = Button(self.frame, text="加密")
-        self.decryptionBt.grid(row=4, column=2, sticky=NSEW)
+        self.encryptionBt = Button(self.frame, text="加密", command=self.encryptionFunc)
+        self.encryptionBt.grid(row=5, column=1, sticky=W)
+
+        self.decryptionBt = Button(self.frame, text="解密", command=self.decryptionFunc)
+        self.decryptionBt.grid(row=5, column=2, sticky=E)
 
     def encryptionFunc(self):
         '''加密方法'''
-        print(self.radioBt.getvar())
+        choice = self.v.get()
+        inputText = self.md5_input_text.get(1.0, END)
+        if choice == "MD5":
+            h = hashlib.md5()
+            h.update(str(inputText).encode('utf-8'))
+            p = "小写32位: " + h.hexdigest() + "\n\n" + "大写32位: " + str(h.hexdigest()).upper()
+            self.md5_output_text.delete(1.0, END)
+            self.md5_output_text.insert(1.0, p)
+
+        elif choice == "TripleDes":
+            output = "TripleDes"
+        elif choice == "AES":
+            salt = bytes(self.salt_text.get(1.0, END), encoding='utf-8')
+            print(salt)
+            aes = AES.new(salt, AES.MODE_ECB)
+            # en_text = aes.encrypt(self.md5_input_text.get(1.0, END))
+            # print("密文", en_text)
+
+        elif choice == "DES":
+            pass
+        elif choice == "RC4":
+            pass
+        elif choice == "Rabbit":
+            pass
+        else:
+            output = "输入错误"
+
 
     def decryptionFunc(self):
         '''解密方法'''
-        pass
-
-
-
-
+        choice = self.v.get()
+        inputText = self.md5_input_text.get(1.0, END)
+        if choice == "MD5":
+            base64_decry = base64.b64decode(inputText)
+            print(base64_decry)
+        elif choice == "TripleDes":
+            output = "TripleDes"
+        elif choice == "AES":
+            pass
+        elif choice == "DES":
+            pass
+        elif choice == "RC4":
+            pass
+        elif choice == "Rabbit":
+            pass
+        else:
+            output = "输入错误"
 
 
 class CommonFunc():
