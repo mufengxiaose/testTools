@@ -469,7 +469,7 @@ class Md5Transformation(Frame):
 
         self.salt_text = Text(self.frame, height=1, width=10)
         self.salt_text.grid(row=4, column=1, columnspan=2, sticky=NSEW)
-        self.salt_text.insert(1.0, "密钥")
+        self.salt_text.insert(1.0, "输入16位密钥")
 
         self.encryptionBt = Button(self.frame, text="加密", command=self.encryptionFunc)
         self.encryptionBt.grid(row=5, column=1, sticky=W)
@@ -491,20 +491,22 @@ class Md5Transformation(Frame):
         elif choice == "TripleDes":
             output = "TripleDes"
         elif choice == "AES":
-            salt = bytes(self.salt_text.get(1.0, END), encoding='utf-8')
-            print(salt)
-            aes = AES.new(salt, AES.MODE_ECB)
-            # en_text = aes.encrypt(self.md5_input_text.get(1.0, END))
-            # print("密文", en_text)
-
+            # salt = bytes(str(self.salt_text.get(1.0, END)).encode().strip())
+            # # print(len(salt))
+            # # print(salt)
+            # aes = AES.new(key=salt, mode=AES.MODE_ECB)
+            # cipher_text = aes.encrypt(self.md5_input_text.get(1.0, END))
+            # print("密文", cipher_text)
+            output= "功能未实现"
         elif choice == "DES":
-            pass
+            output= "功能未实现"
         elif choice == "RC4":
-            pass
+            output = "功能未实现"
         elif choice == "Rabbit":
-            pass
+            output= "功能未实现"
         else:
             output = "输入错误"
+        return messagebox.showinfo(message={output})
 
 
     def decryptionFunc(self):
@@ -512,8 +514,7 @@ class Md5Transformation(Frame):
         choice = self.v.get()
         inputText = self.md5_input_text.get(1.0, END)
         if choice == "MD5":
-            base64_decry = base64.b64decode(inputText)
-            print(base64_decry)
+            messagebox.showinfo(message="暂不支持解密")
         elif choice == "TripleDes":
             output = "TripleDes"
         elif choice == "AES":
