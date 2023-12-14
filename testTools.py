@@ -24,7 +24,8 @@ from tkinter import ttk
 from tkinter import messagebox
 from PIL import ImageTk
 from PIL import Image as Img
-from Crypto.Cipher import AES
+from urllib import parse
+# from Crypto.Cipher import AES
 
 
 class TranslaterApp(Frame):
@@ -547,6 +548,37 @@ class CommonFunc():
     def getSystemName(self):
         '''获取电脑系统名称'''
         return platform.system()
+
+class UrlDecodeEncode(Frame):
+    '''url解析'''
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.pack()
+
+        self.frame = Frame(self)
+        self.frame.pack()
+
+    def UrlDecode(self):
+        self.input_txt = Text(self.frame, height=12, width=100)
+        self.output_txt = Text(self.frame, height=12, width=100)
+        DecodeBt = Button(self.frame, text='解码', command=self.DecodeBtCk)
+        EncodeBt = Button(self.frame, text='编码')
+
+        self.input_txt.grid(row=0, column=1, sticky=NSEW)
+        self.output_txt.grid(row=2, column=1, sticky=NSEW)
+        DecodeBt.grid(row=0, column=0, rowspan=2, sticky=NSEW)
+        EncodeBt.grid(row=1, column=0, rowspan=2, sticky=NSEW)
+
+    def Decode(self):
+        '''解码'''
+        url_txt = self.input_txt.get('1.0', '1.end')
+        print('url_txt:', url_txt)
+        out_txt = parse.unquote(url_txt)
+        return out_txt
+
+    def DecodeBtCk(self):
+        self.output_txt.delete('1.0', '1.end')
+        self.output_txt.insert('1.0', self.Decode())
 
 
 if __name__ == '__main__':
