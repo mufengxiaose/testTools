@@ -23,8 +23,9 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import ImageTk
-from PIL import Image as Img
+from PIL import Image
 from Crypto.Cipher import AES
+from urllib import parse
 
 
 class TranslaterApp(Frame):
@@ -155,7 +156,7 @@ class QrcodeApp(Frame):
     def showQrcodeImg(self):
         """展示二维码图片"""
         self.qrcodeGeneration()
-        self.img = Img.open(os.getcwd() + "/qrcodeImg/img.png")
+        self.img = Image.open(os.getcwd() + "/qrcodeImg/img.png")
         self.photo = ImageTk.PhotoImage(self.img)
         self.qc_label = Label(self.qrcodeFrame, image=self.photo)
         self.qc_label.grid(row=2)
@@ -279,7 +280,7 @@ class DevicesApp(Frame):
     def showScreenshotPic(self):
         '''显示截图'''
         global screenImg
-        photo = Img.open(self.screenshotMethod())
+        photo = Image.open(self.screenshotMethod())
         width, height = photo.size[0], photo.size[1] #获取图片宽高
         photo = photo.resize((int(width*0.3), int(height*0.3))) #图盘等比缩放
         screenImg = ImageTk.PhotoImage(photo)
@@ -548,19 +549,185 @@ class CommonFunc():
         '''获取电脑系统名称'''
         return platform.system()
 
+class Health(Frame):
+    '''健康测量'''
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.pack()
+
+        self.frame = Frame(self)
+        self.weightX = StringVar()
+        self.heightX = StringVar()
+        self.frame.pack()
+        self.BMIGui()
+
+
+    def BMIGui(self):
+        '''BMI'''
+        self.weightLabel = Label(self.frame, text="体重（kg）")
+        self.heightLabel = Label(self.frame, text="身高(厘米）")
+        self.weightEntry = Entry(self.frame, width=10, textvariable=self.weightX)
+        self.heightEntry = Entry(self.frame, width=10, textvariable=self.heightX)
+
+        self.count = StringVar()
+        self.count.set("BMI指数")
+        self.countLabel = Label(self.frame, textvariable=self.count)
+        self.countLabel.grid(row=2, column=1)
+        self.countBt = Button(self.frame, text="开始计算", command=self.BMICount)
+
+        self.weightLabel.grid(row=0, column=0, sticky=W)
+        self.heightLabel.grid(row=1, column=0)
+        self.weightEntry.grid(row=0, column=1)
+        self.heightEntry.grid(row=1, column=1)
+        self.countBt.grid(row=2, column=0)
+
+
+    def BMICount(self):
+        '''bmi 计算
+        体重(kg)/身高(m)^2'''
+        weight = self.weightEntry.get()
+        height = self.heightEntry.get()
+        message = "请输入正确数字"
+        if weight==str or weight=='' or height==str or height==' ':
+            messagebox.showinfo(message="%s"%message)
+        else:
+            weight = float(weight)
+            height = float(height)/100
+            height = height ** 2
+            BMI = weight / height
+            if BMI<=18.4:
+                messagebox.showinfo(message="偏瘦")
+            elif BMI>18.4 and BMI<24:
+                messagebox.showinfo(message="正常")
+            elif BMI>24 and BMI<28:
+                messagebox.showinfo(message="过重")
+            elif BMI>=28:
+                messagebox.showinfo(message="肥胖")
+            BMI = "%.2f" % BMI
+            self.count.set(BMI)
+
+class ImageProcessing(Frame):
+    '''
+    图片处理功能
+    '''
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.pack
+        self.frame = Frame(self)
+        self.frame.pack()
+        self.ImgGui()
+
+    def ImgGui(self):
+        self.img = Button(self.frame, text='单图片处理', command=self.importImgFile)
+        self.imgEntry = Entry(self.frame, width=20, textvariable="导入图片")
+        self.imgFiles = Button(self.frame, text='多图片处理')
+        self.imgsEntry = Entry(self.frame, width=20, textvariable="文件夹")
+        self.compressBt = Button(self.frame, text="图片压缩", command=self.compressFunc)
+        self.compressfactorCombobox = ttk.Combobox(self.frame, width=7)
+        value = ('5', '10', '15', '20', '25', '30', '35', '40')
+        self.compressfactorCombobox['value'] = value
+        self.compressfactorCombobox.current(0)
+        self.label0 = Label(self.frame, text="压缩倍数")
+
+        self.img.grid(row=0, column=0, sticky=W)
+        self.imgEntry.grid(row=0, column=1, sticky=W)
+        self.imgFiles.grid(row=1, column=0, sticky=W)
+        self.imgsEntry.grid(row=1, column=1, sticky=W)
+        self.label0.grid(row=2, column=0, sticky=W)
+        self.compressBt.grid(row=2, column=2, sticky=W)
+        self.compressfactorCombobox.grid(row=2, column=1, sticky=W)
+
+    def compressFunc(self):
+        '''img compress'''
+        img = self.imgEntry.get()
+        filepath, filename = os.path.split(img)
+        img_name, filetype = os.path.splitext(filename)
+        # factor = self.compressfactor.get()
+        factor = self.compressfactorCombobox.get()
+        factor = int(factor)
+        img = Image.open(img)
+        output_dir = "images_2"
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
+        new_file = img_name + '.jpg'
+        img.save(os.path.join(output_dir, new_file), quality=factor)
+
+    def importImgFile(self):
+        '''file'''
+        img = askopenfilename(filetypes=[('png', '*.png'), ('jpg', '*.jpg'),
+                                         ('jpeg', '*jpeg'), ('gif', '*.gif')])
+        self.imgEntry.delete(0, END)
+        self.imgEntry.insert(0, img)
+
+class UrlDecodeEncode(Frame):
+    '''url解码编码'''
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.pack()
+
+        self.frame = Frame(self)
+        self.frame.pack()
+        self.DecodeEncodeGui()
+
+    def DecodeEncodeGui(self):
+        '''Gui'''
+        self.inputTxt = Text(self.frame, height=13, width=100)
+        self.outputTxt = Text(self.frame,height=13, width=100)
+        self.EncodeBt = Button(self.frame, text='编码')
+        self.DecodeBt = Button(self.frame, text='解码', command=self.EncodeBtFun)
+
+        self.inputTxt.grid(row=0, column=1, sticky=NSEW)
+        self.EncodeBt.grid(row=0, column=0, rowspan=2, sticky=W)
+        self.DecodeBt.grid(row=1, column=0, rowspan=2, sticky=W)
+        self.outputTxt.grid(row=2, column=1, sticky=NSEW)
+        # self.inputTxt.insert(INSERT, 'asdf')
+        self.EncodeFun()
+
+    def EncodeFun(self):
+        '''解码'''
+        url_txt = self.inputTxt.get('1.0', '1.end')
+        # url_txt = "http://www.baidu.com?id=1"
+        print("url_txt:", url_txt)
+        out_txt = parse.unquote(url_txt)
+        return out_txt
+
+
+    def EncodeBtFun(self):
+        self.outputTxt.delete('1.0', '1.end')
+        self.outputTxt.insert('1.0', self.EncodeFun())
+        print('output:' + self.EncodeFun())
+
+class MenuBar(Frame):
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.master = master
+
+        self.menubar = Menu(self.master, tearoff=False)
+        self.master.config(menu=self.menubar)
+
+    def fileMenu(self):
+        file_menu = Menu(self.menubar, tearoff=False)
+        file_menu.add_command(label='file')
+        self.menubar.add_cascade(lable='File', menu=file_menu)
 
 if __name__ == '__main__':
     root = Tk()
     root.title("test tools")
     root.geometry("1000x600+70+10")
 
+    tabStyle = ttk.Style()
+    tabStyle.configure('TNotebook.Tab', foreground='blue')
+
     tabNote = ttk.Notebook(root, width=1000, height=600)
     tabNote.add(DevicesApp(tabNote), text="手机常用功能")
-    tabNote.add(TranslaterApp(tabNote), text="翻译")
     tabNote.add(QrcodeApp(tabNote), text="二维码生成")
+    tabNote.add(UrlDecodeEncode(tabNote), text="url编码解码")
     # tabNote.add(DeviceLog(tabNote), text="日志")
     tabNote.add(TimesstampHash(tabNote), text="时间戳md5转换")
+    tabNote.add(TranslaterApp(tabNote), text="翻译")
     tabNote.add(Md5Transformation(tabNote), text="加密解密")
+    tabNote.add(Health(tabNote), text="健康计算")
+    tabNote.add(ImageProcessing(tabNote), text="图片处理")
     tabNote.pack(expand=0, anchor='nw')
     # NodebookFunc(master=root)
 
