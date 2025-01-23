@@ -249,17 +249,19 @@ class DevicesApp(Frame):
         ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         file = "adb logcat -v threadtime > " + log_file + "/" + ctime + ".log"
         log1 = subprocess.Popen(args=file, shell=True, stdin=subprocess.PIPE, stdout=None)
-        time.sleep(15)
+        time.sleep(8)
         os.system("taskkill /t /f /pid {}".format(log1.pid))
         lists = os.listdir(log_file)
         lists.sort(key=lambda fn:os.path.getmtime(log_file + '/' + fn))
         file_new = os.path.join(log_file, lists[-1])
         return file_new
     
-    def log_thread(self):
-        thread = threading.Thread(target=self.GetLog)
-        thread.start()
-        thread.join(10)
+    # def log_thread(self):
+    #     thread = threading.Thread(target=self.GetLog)
+    #     thread.start()
+    
+    # def on_log_button_click(self):
+    #     self.log_thread()
 
     def showLogPath(self):
         '''日志路径显示'''
@@ -315,12 +317,12 @@ class DevicesApp(Frame):
         self.push_fileEntry = Entry(self.deviceFrame)
         self.push_fileEntry.grid(row=3, column=1, columnspan=3, sticky=NSEW)
 
-        push_Bt = Button(self.deviceFrame, text="push>>sdcard", command=self.push_stread)
+        push_Bt = Button(self.deviceFrame, text="push>>sdcard", command=self.on_push_button_click)
         push_Bt.grid(row=3, column=4, sticky=NSEW)
 
-    def pushFile(self):
-        local_path = self.push_fileEntry.get()
-        remote_path = "/sdcard"
+    def adb_push(self, local_path, remote_path):
+        # local_path = self.push_fileEntry.get()
+        # remote_path = "/sdcard"
         try:
             if " " in str(local_path):
                 messagebox.showinfo(message="文件路径有空格")
@@ -332,6 +334,7 @@ class DevicesApp(Frame):
                     universal_newlines=True
                 )
                 stdout, stderr = process.communicate()
+                messagebox.showinfo(message="推送中。。。")
                 if process.returncode == 0:
                     # 命令执行成功
                     print("文件推送成功！")
@@ -342,6 +345,15 @@ class DevicesApp(Frame):
                     messagebox.showinfo(message="文件推送失败")
         except Exception as e:
             print(f"发生异常{e}")
+    def run_adb_push_in_stread(self, local_path, remote_path):
+        thread = threading.Thread(target=self.adb_push, args=(local_path, remote_path))
+        thread.start()
+        thread.join(2)
+    
+    def on_push_button_click(self):
+        local_path = self.push_fileEntry.get()
+        remote_path = "/sdcard"
+        self.run_adb_push_in_stread(local_path, remote_path)
 
     
     def get_push_file(self):
@@ -354,50 +366,52 @@ class DevicesApp(Frame):
         openFIleBt = Button(self.deviceFrame, text="导入安装包", command=self.get_file_path)
         openFIleBt.grid(row=2, column=0, sticky=W)
 
-        self.fileEntry = Entry(self.deviceFrame)
-        self.fileEntry.grid(row=2, column=1, columnspan=3, sticky=NSEW)
+        self.adb_install_fileEntry = Entry(self.deviceFrame)
+        self.adb_install_fileEntry.grid(row=2, column=1, columnspan=3, sticky=NSEW)
 
-        installBt = Button(self.deviceFrame, text="安装", command=self.install_thread)
+        installBt = Button(self.deviceFrame, text="安装", command=self.on_adb_install_click)
         installBt.grid(row=2, column=4, sticky=NSEW)
 
     def get_file_path(self):
         '''获取.apk文件路径'''
         filepath = askopenfilename()
-        self.fileEntry.delete(0, END)
-        self.fileEntry.insert(0, filepath)
+        self.adb_install_fileEntry.delete(0, END)
+        self.adb_install_fileEntry.insert(0, filepath)
 
-    def install_package(self):
+    def adb_install_package(self):
         '''安装package'''
-        file_path = self.fileEntry.get()
-        print(file_path)
-        if " " in str(file_path):
+        local_path = self.adb_install_fileEntry.get()
+        print(local_path)
+        if " " in str(local_path):
             messagebox.showinfo(message="apk路径有空格\n安装失败")
         else:
             status = CommonFunc().runCmd("adb devices").strip()
             if status == "List of devices attached":
                 return messagebox.showinfo(message="手机未链接\n请重新链接手机")
-            elif ".apk" in str(file_path):
+            elif ".apk" in str(local_path):
                 p = "adb install "
-                if "Success" in CommonFunc().runCmd(p + file_path):
+                messagebox.showinfo(message="安装中...")
+                if "Success" in CommonFunc().runCmd(p + local_path):
                     messagebox.showinfo(message="安装成功")
                 else:
                     messagebox.showinfo(message="安装失败")
             else:
                 messagebox.showinfo(message="确认文件是否正确")
-    def push_stread(self):
-        thread = threading.Thread(target=self.pushFile)
-        thread.start()
-        thread.join(20)
 
-    def install_thread(self):
+
+    def run_adb_install_thread(self):
         """启用安装线程"""
-        thread = threading.Thread(target=self.install_package)
+        thread = threading.Thread(target=self.adb_install_package)
         thread.start()
-        thread.join(5)
         if thread.is_alive():
             print("Thread is still running")
         else:
             print("Thread has finished")
+    
+    def on_adb_install_click(self):
+        local_path = self.adb_install_fileEntry.get()
+        self.run_adb_install_thread()
+
 
 
 class TimesstampHash(Frame):
