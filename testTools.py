@@ -26,6 +26,8 @@ from PIL import ImageTk
 from PIL import Image
 from Crypto.Cipher import AES
 from urllib import parse
+import json
+
 
 
 class TranslaterApp(Frame):
@@ -173,7 +175,7 @@ class DevicesApp(Frame):
         self.status_label = Label(self.deviceFrame, text="设备链接状态：")
         self.status_label.grid(row=0, column=0, sticky=W)
 
-        self.status_text = Text(self.deviceFrame, width=20, height=1, font=20)
+        self.status_text = Text(self.deviceFrame, width=40, height=1, font=20)
         self.status_text.grid(row=0, column=1, sticky=W, columnspan=3)
 
         self.refresh_status_bt = Button(self.deviceFrame, text="刷新状态", width=12,
@@ -193,17 +195,17 @@ class DevicesApp(Frame):
 
         # Android屏幕共享
         self.scrcpy_bt = Button(self.deviceFrame, text="投屏", width=12, command=self.callScrcpy)
-        self.scrcpy_bt.grid(row=3, column=0, sticky=W)
+        self.scrcpy_bt.grid(row=4, column=0, sticky=W)
 
         # Android截图
         self.screenshot_bt = Button(self.deviceFrame, text="手机截图", width=12,
                                        command=self.creatScreenshotToplevel)
-        self.screenshot_bt.grid(row=3, column=1, sticky=W)
+        self.screenshot_bt.grid(row=4, column=1, sticky=W)
 
         # 重启手机
         self.reset_devices_bt = Button(self.deviceFrame, text='重启手机', width=12,
                                           command=self.resetDevices)
-        self.reset_devices_bt.grid(row=3, column=2, sticky=W)
+        self.reset_devices_bt.grid(row=4, column=2, sticky=W)
 
         # 启动app直接获取设备链接状态
         self.deviceConnect()
@@ -211,6 +213,8 @@ class DevicesApp(Frame):
         # 安装apk
         self.install_apk()
 
+        # push文件
+        self.pushFileUI()
     #手机状态部分
     def callScrcpy(self):
         '''使用scrcpy功能'''
@@ -251,6 +255,11 @@ class DevicesApp(Frame):
         lists.sort(key=lambda fn:os.path.getmtime(log_file + '/' + fn))
         file_new = os.path.join(log_file, lists[-1])
         return file_new
+    
+    def log_thread(self):
+        thread = threading.Thread(target=self.GetLog)
+        thread.start()
+        thread.join(10)
 
     def showLogPath(self):
         '''日志路径显示'''
@@ -298,6 +307,48 @@ class DevicesApp(Frame):
         str0 = "adb reboot"
         return CommonFunc().runCmd(str0)
 
+    # push文件功能
+    def pushFileUI(self):
+        openFIleBt = Button(self.deviceFrame, text="文件", command=self.get_push_file)
+        openFIleBt.grid(row=3, column=0, sticky=W)
+
+        self.push_fileEntry = Entry(self.deviceFrame)
+        self.push_fileEntry.grid(row=3, column=1, columnspan=3, sticky=NSEW)
+
+        push_Bt = Button(self.deviceFrame, text="push>>sdcard", command=self.push_stread)
+        push_Bt.grid(row=3, column=4, sticky=NSEW)
+
+    def pushFile(self):
+        local_path = self.push_fileEntry.get()
+        remote_path = "/sdcard"
+        try:
+            if " " in str(local_path):
+                messagebox.showinfo(message="文件路径有空格")
+            else:
+                process = subprocess.Popen(
+                    ['adb', 'push', local_path, remote_path],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    universal_newlines=True
+                )
+                stdout, stderr = process.communicate()
+                if process.returncode == 0:
+                    # 命令执行成功
+                    print("文件推送成功！")
+                    messagebox.showinfo(message="文件推送成功")
+                else:
+                    # 命令执行失败
+                    print("文件推送失败！")
+                    messagebox.showinfo(message="文件推送失败")
+        except Exception as e:
+            print(f"发生异常{e}")
+
+    
+    def get_push_file(self):
+        filepath = askopenfilename()
+        self.push_fileEntry.delete(0, END)
+        self.push_fileEntry.insert(0, filepath)
+
     def install_apk(self):
         '''安装apk'''
         openFIleBt = Button(self.deviceFrame, text="导入安装包", command=self.get_file_path)
@@ -310,7 +361,7 @@ class DevicesApp(Frame):
         installBt.grid(row=2, column=4, sticky=NSEW)
 
     def get_file_path(self):
-        '''获取文件路径'''
+        '''获取.apk文件路径'''
         filepath = askopenfilename()
         self.fileEntry.delete(0, END)
         self.fileEntry.insert(0, filepath)
@@ -333,11 +384,20 @@ class DevicesApp(Frame):
                     messagebox.showinfo(message="安装失败")
             else:
                 messagebox.showinfo(message="确认文件是否正确")
+    def push_stread(self):
+        thread = threading.Thread(target=self.pushFile)
+        thread.start()
+        thread.join(20)
 
     def install_thread(self):
         """启用安装线程"""
-        t1 = threading.Thread(target=self.install_package)
-        t1.start()
+        thread = threading.Thread(target=self.install_package)
+        thread.start()
+        thread.join(5)
+        if thread.is_alive():
+            print("Thread is still running")
+        else:
+            print("Thread has finished")
 
 
 class TimesstampHash(Frame):
@@ -489,25 +549,38 @@ class Md5Transformation(Frame):
             self.md5_output_text.delete(1.0, END)
             self.md5_output_text.insert(1.0, p)
 
+        # elif choice == "TripleDes":
+        #     raise NotImplementedError("TripleDes ")
+        #     output = "TripleDes"
+        # elif choice == "AES":
+        #     # salt = bytes(str(self.salt_text.get(1.0, END)).encode().strip())
+        #     # # print(len(salt))
+        #     # # print(salt)
+        #     # aes = AES.new(key=salt, mode=AES.MODE_ECB)
+        #     # cipher_text = aes.encrypt(self.md5_input_text.get(1.0, END))
+        #     # print("密文", cipher_text)
+        #     output= "功能未实现"
+        # elif choice == "DES":
+        #     output= "功能未实现"
+        # elif choice == "RC4":
+        #     output = "功能未实现"
+        # elif choice == "Rabbit":
+        #     output= "功能未实现"
+        # else:
+        #     output = "输入错误"
+        # return messagebox.showinfo(message={output})
         elif choice == "TripleDes":
-            output = "TripleDes"
+            raise NotImplementedError("TripleDes 解密功能未实现")
         elif choice == "AES":
-            # salt = bytes(str(self.salt_text.get(1.0, END)).encode().strip())
-            # # print(len(salt))
-            # # print(salt)
-            # aes = AES.new(key=salt, mode=AES.MODE_ECB)
-            # cipher_text = aes.encrypt(self.md5_input_text.get(1.0, END))
-            # print("密文", cipher_text)
-            output= "功能未实现"
+            raise NotImplementedError("AES 解密功能未实现")
         elif choice == "DES":
-            output= "功能未实现"
+            raise NotImplementedError("DES 解密功能未实现")
         elif choice == "RC4":
-            output = "功能未实现"
+            raise NotImplementedError("RC4 解密功能未实现")
         elif choice == "Rabbit":
-            output= "功能未实现"
+            raise NotImplementedError("Rabbit 解密功能未实现")
         else:
-            output = "输入错误"
-        return messagebox.showinfo(message={output})
+            raise ValueError("输入错误")
 
 
     def decryptionFunc(self):
@@ -540,10 +613,11 @@ class CommonFunc():
     def creatFile(self, file_path):
         """判断目录是否存在，没有则创建"""
         self._file = os.getcwd() + file_path
-        if not os.path.exists(self._file):
-            return os.mkdir(self._file)
-        else:
-            pass
+        try:
+            if not os.path.exists(self._file):
+                return os.mkdir(self._file)
+        except OSError as e:
+            print(f"创建目录失败{e}")
 
     def getSystemName(self):
         '''获取电脑系统名称'''
@@ -650,7 +724,10 @@ class ImageProcessing(Frame):
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
         new_file = img_name + '.jpg'
-        img.save(os.path.join(output_dir, new_file), quality=factor)
+        try:
+            img.save(os.path.join(output_dir, new_file), quality=factor)
+        except IOError as e:
+            print(f"图片保存失败{e}")
 
     def importImgFile(self):
         '''file'''
@@ -710,6 +787,47 @@ class MenuBar(Frame):
         file_menu.add_command(label='file')
         self.menubar.add_cascade(lable='File', menu=file_menu)
 
+class VerficationCode(Frame):
+    '''验证码获取'''
+    def __init__(self, master=None):
+        Frame.__init__(self, master)
+        self.pack
+        self.frame = Frame(self)
+        self.frame.pack()
+        self.ui()
+
+    def ui(self):
+        '''ui布局'''
+        self.label = Label(self.frame, text='appid')
+        self.button_get = Button(self.frame, text="获取", command=self.getCode)
+        self.button_get.pack()    
+    def getCode(self):
+        '''获取验证码'''
+        appid = 130003
+        phone = ""
+        url = 'http://10.85.172.18:8000/passport/user/v5/querySmsCode'
+        headers = {
+            'Content-Type': 'application/json',
+            "accept":"application/json, text/plain, */*",
+            "User-Agent": "curl/8.2.1"
+            }
+        data = {
+            "q":{
+            "country_calling_code":"+86",
+            "appid":130003,
+            "cell":"00017017602",
+            "operator":"passport-pre-autotest"
+            }
+        }
+        
+        req = requests.post(url=url, json=json.dumps(data), headers=headers)
+        
+        print(req)
+        print(req.json)
+        print(req.text)
+
+    
+
 if __name__ == '__main__':
     root = Tk()
     root.title("test tools")
@@ -728,6 +846,7 @@ if __name__ == '__main__':
     tabNote.add(Md5Transformation(tabNote), text="加密解密")
     tabNote.add(Health(tabNote), text="健康计算")
     tabNote.add(ImageProcessing(tabNote), text="图片处理")
+    # tabNote.add(VerficationCode(tabNote), text="验证码查询")
     tabNote.pack(expand=0, anchor='nw')
     # NodebookFunc(master=root)
 
