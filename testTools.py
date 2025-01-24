@@ -27,6 +27,7 @@ from PIL import Image
 from Crypto.Cipher import AES
 from urllib import parse
 import json
+from urllib.parse import urlencode
 
 
 
@@ -563,26 +564,6 @@ class Md5Transformation(Frame):
             self.md5_output_text.delete(1.0, END)
             self.md5_output_text.insert(1.0, p)
 
-        # elif choice == "TripleDes":
-        #     raise NotImplementedError("TripleDes ")
-        #     output = "TripleDes"
-        # elif choice == "AES":
-        #     # salt = bytes(str(self.salt_text.get(1.0, END)).encode().strip())
-        #     # # print(len(salt))
-        #     # # print(salt)
-        #     # aes = AES.new(key=salt, mode=AES.MODE_ECB)
-        #     # cipher_text = aes.encrypt(self.md5_input_text.get(1.0, END))
-        #     # print("密文", cipher_text)
-        #     output= "功能未实现"
-        # elif choice == "DES":
-        #     output= "功能未实现"
-        # elif choice == "RC4":
-        #     output = "功能未实现"
-        # elif choice == "Rabbit":
-        #     output= "功能未实现"
-        # else:
-        #     output = "输入错误"
-        # return messagebox.showinfo(message={output})
         elif choice == "TripleDes":
             raise NotImplementedError("TripleDes 解密功能未实现")
         elif choice == "AES":
@@ -812,35 +793,74 @@ class VerficationCode(Frame):
 
     def ui(self):
         '''ui布局'''
-        self.label = Label(self.frame, text='appid')
-        self.button_get = Button(self.frame, text="获取", command=self.getCode)
-        self.button_get.pack()    
-    def getCode(self):
+        option = ['KF微信', 'KF支付宝', 'KF乘客', 'KF司机']
+        phone_label = Label(self.frame, text='手机号')
+        phone_label.grid(row=0, column=0, sticky=NSEW)
+        self.phone_entry = Entry(self.frame, width=20)
+        self.phone_entry.grid(row=0, column=1)
+        appid_label = Label(self.frame, text="appid")
+        appid_label.grid(row=0, column=2, sticky=NSEW)
+        self.combo = ttk.Combobox(self.frame, values=option)
+        # self.combo.set(option[0])
+        self.combo.grid(row=0, column=3, sticky=NSEW)
+        self.button_get = Button(self.frame, text="获取", command=self.on_get_code_bt_click)
+        self.button_get.grid(row=0, column=4, sticky=NSEW)  
+    def get_phone_appid(self):
         '''获取验证码'''
-        appid = 130003
-        phone = ""
+        appid = self.combo.get()
+        phone_num = self.phone_entry.get()
+        if appid == "KF微信":
+            appid = 130003
+        elif appid == "KF支付宝":
+            appid = 130004
+        elif appid == "KF乘客":
+            appid = 130000
+        elif appid == "KF司机":
+            appid = 130001
+        return appid, phone_num
+    def get_curl_code(self, appid, phone_num):
         url = 'http://10.85.172.18:8000/passport/user/v5/querySmsCode'
-        headers = {
-            'Content-Type': 'application/json',
-            "accept":"application/json, text/plain, */*",
-            "User-Agent": "curl/8.2.1"
-            }
+        # appid, phone_num = self.get_phone_appid()
+        # 要发送的数据
         data = {
-            "q":{
-            "country_calling_code":"+86",
-            "appid":130003,
-            "cell":"00017017602",
-            "operator":"passport-pre-autotest"
-            }
+            'q': '{"country_calling_code":"+86","appid":%s,"cell":"%s","operator":"passport-pre-autotest"}'%(appid, phone_num)
         }
-        
-        req = requests.post(url=url, json=json.dumps(data), headers=headers)
-        
-        print(req)
-        print(req.json)
-        print(req.text)
 
-    
+        print(data)
+        # 对数据进行 URL 编码
+        encoded_data = urlencode(data)
+
+        # 设置请求头，这里根据 curl 命令的行为推测，实际可能需要根据服务器要求调整
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+
+        try:
+            # 发送 POST 请求
+            response = requests.post(url, data=encoded_data, headers=headers)
+            response.raise_for_status()
+            result = response.json()
+            return result
+        except requests.RequestException as e:
+            print(f"请求发生异常: {e}")
+            return NONE        
+ 
+    def on_get_code_bt_click(self):
+        appid, phone_num = self.get_phone_appid()
+        result = self.get_curl_code(appid=appid, phone_num=phone_num)
+        if result:
+            errno = result.get('errno')
+            error = result.get('error')
+            verication_code = result.get('data')
+            if verication_code:
+                messagebox.showinfo(message=f'{verication_code}')
+            else:
+                messagebox.showinfo(message=f'{error}')
+        else:
+            messagebox.showinfo(message="请求出错")
+
+        
+
 
 if __name__ == '__main__':
     root = Tk()
@@ -857,10 +877,10 @@ if __name__ == '__main__':
     # tabNote.add(DeviceLog(tabNote), text="日志")
     tabNote.add(TimesstampHash(tabNote), text="时间戳md5转换")
     tabNote.add(TranslaterApp(tabNote), text="翻译")
-    tabNote.add(Md5Transformation(tabNote), text="加密解密")
+    # tabNote.add(Md5Transformation(tabNote), text="加密解密")
     tabNote.add(Health(tabNote), text="健康计算")
     tabNote.add(ImageProcessing(tabNote), text="图片处理")
-    # tabNote.add(VerficationCode(tabNote), text="验证码查询")
+    tabNote.add(VerficationCode(tabNote), text="验证码查询")
     tabNote.pack(expand=0, anchor='nw')
     # NodebookFunc(master=root)
 
