@@ -353,8 +353,12 @@ class DevicesApp(Frame):
     
     def on_push_button_click(self):
         local_path = self.push_fileEntry.get()
+        print(f"local_path{local_path}")
         remote_path = "/sdcard"
-        self.run_adb_push_in_stread(local_path, remote_path)
+        if local_path:
+            return self.run_adb_push_in_stread(local_path, remote_path)
+        else:
+            return messagebox.showinfo(message="文件为空")
 
     
     def get_push_file(self):
@@ -383,12 +387,12 @@ class DevicesApp(Frame):
         '''安装package'''
         local_path = self.adb_install_fileEntry.get()
         print(local_path)
-        if " " in str(local_path):
-            messagebox.showinfo(message="apk路径有空格\n安装失败")
-        else:
+        if local_path:
             status = CommonFunc().runCmd("adb devices").strip()
             if status == "List of devices attached":
                 return messagebox.showinfo(message="手机未链接\n请重新链接手机")
+            elif " " in local_path:
+                messagebox.showinfo(message="apk路径有空格\n安装失败")
             elif ".apk" in str(local_path):
                 p = "adb install "
                 messagebox.showinfo(message="安装中...")
@@ -398,6 +402,8 @@ class DevicesApp(Frame):
                     messagebox.showinfo(message="安装失败")
             else:
                 messagebox.showinfo(message="确认文件是否正确")
+        else:
+            messagebox.showinfo(message="文件不能为空")
 
 
     def run_adb_install_thread(self):
