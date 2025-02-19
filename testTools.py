@@ -841,10 +841,10 @@ class VerficationCode(Frame):
         nums_extension_bt.grid(row=2, column=4)
 
         # case转换
-        case_file_bt = Button(self.frame, text="导入文件", command=DevicesApp.get_file_path)
+        case_file_bt = Button(self.frame, text="导入文件", command=self.insert_file_path)
         case_file_bt.grid(row=4, column=2)
-        case_file_entry = Entry(self.frame)
-        case_file_entry.grid(row=4, column=3, sticky=NSEW)
+        self.case_file_entry = Entry(self.frame)
+        self.case_file_entry.grid(row=4, column=3, sticky=NSEW)
         case_conversion_bt = Button(self.frame, text="生成")
         case_conversion_bt.grid(row=4, column=4)
 
@@ -1002,8 +1002,21 @@ class VerficationCode(Frame):
         # else:
         #     messagebox.showinfo(message="请求出错")
         messagebox.showinfo(message="完成")
-        
+    
+    def get_file_path(self):
+        '''打开file'''
+        return askopenfilename()
 
+    def insert_file_path(self):
+        '''entry插入路径'''
+        self.case_file_entry.delete(0, END)
+        self.case_file_entry.insert(0, self.get_file_path())
+    
+    def case_conversion_bt_click(self):
+        # 转换按钮点击
+        file_path = self.case_file_entry.get()
+        if file_path:
+            pass
 
 if __name__ == '__main__':
     root = Tk()
