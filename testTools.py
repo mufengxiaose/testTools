@@ -840,6 +840,14 @@ class VerficationCode(Frame):
         nums_extension_bt = Button(self.frame, text="一键续期", command=self.nums_extension_bt_click)
         nums_extension_bt.grid(row=2, column=4)
 
+        # case转换
+        case_file_bt = Button(self.frame, text="导入文件", command=DevicesApp.get_file_path)
+        case_file_bt.grid(row=4, column=2)
+        case_file_entry = Entry(self.frame)
+        case_file_entry.grid(row=4, column=3, sticky=NSEW)
+        case_conversion_bt = Button(self.frame, text="生成")
+        case_conversion_bt.grid(row=4, column=4)
+
     def get_phone_appid(self):
         '''获取验证码'''
         appid = self.combo.get()
@@ -911,7 +919,7 @@ class VerficationCode(Frame):
         testcell_type = testcell_type
         url = 'https://starmap.xiaojukeji.com/mp/console/v1/testcell/create'
         cookies = str(self.cookies_text.get("1.0", END).rstrip())
-        print(cookies)
+        # print(cookies)
         headers = {
             'Accept': 'application/json',
             'Accept-Language': 'zh-CN,zh;q=0.9',
@@ -961,7 +969,8 @@ class VerficationCode(Frame):
         单个测试号延期
         testcell_type:3 延期
         '''
-        result = self.get_fixed_verification_code_curl(testcell_type=3)
+        phone = self.phone_entry.get()
+        result = self.get_fixed_verification_code_curl(testcell_type=3, phone=phone)
         if result:
             errmsg = result.get('errmsg')
             messagebox.showinfo(message=f'{errmsg}')
