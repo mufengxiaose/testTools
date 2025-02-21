@@ -9,6 +9,7 @@ from common.QrcodeApp import QrcodeApp
 from common.TimesstampHash import TimesstampHash
 from common.Health import Health
 from common.ImageProcessing import ImageProcessing
+from common.DevicesApp import DevicesApp
 
 
 
@@ -21,7 +22,7 @@ if __name__ == "__main__":
     tabStyle.configure('TNotebook.Tab', foreground='blue')
 
     tabNote = ttk.Notebook(root, width=1000, height=600)
-    # tabNote.add(DevicesApp(tabNote), text="手机常用功能")
+    tabNote.add(DevicesApp(tabNote), text="手机常用功能")
     tabNote.add(VerficationCode(tabNote), text="验证码查询")
     tabNote.add(QrcodeApp(tabNote), text="二维码生成")
     # tabNote.add(UrlDecodeEncode(tabNote), text="url编码解码")
