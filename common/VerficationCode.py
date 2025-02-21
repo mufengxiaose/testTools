@@ -5,11 +5,6 @@ from tkinter.filedialog import *
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-# from PIL import ImageTk
-# from PIL import Image
-# from Crypto.Cipher import AES
-# from urllib import parse
-# import json
 from urllib.parse import urlencode
 
 
