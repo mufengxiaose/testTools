@@ -7,6 +7,8 @@ from tkinter import ttk
 from tkinter import messagebox
 from urllib.parse import urlencode
 
+from common.DcaseTransformation import *
+
 
 class VerficationCode(Frame):
     '''验证码获取'''
@@ -65,7 +67,7 @@ class VerficationCode(Frame):
         case_file_bt.grid(row=4, column=2)
         self.case_file_entry = Entry(self.frame)
         self.case_file_entry.grid(row=4, column=3, sticky=NSEW)
-        case_conversion_bt = Button(self.frame, text="生成")
+        case_conversion_bt = Button(self.frame, text="生成", command=self.case_conversion_bt_click)
         case_conversion_bt.grid(row=4, column=4)
 
     def get_phone_appid(self):
@@ -235,5 +237,12 @@ class VerficationCode(Frame):
     def case_conversion_bt_click(self):
         # 转换按钮点击
         file_path = self.case_file_entry.get()
-        if file_path:
-            pass
+        try:
+            if len(file_path) < 2:
+                logging.error("请提供 Dcase 测试用例 Excel 文件的路径作为命令行参数。")
+            else:
+                dcaseContent = getDcaseData(file_path)
+                createOECase(parseCase(dcaseContent))
+        except Exception as e:
+            logging.error(f"主程序运行时出错: {e}")
+
