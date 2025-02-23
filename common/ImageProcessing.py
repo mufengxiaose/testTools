@@ -1,5 +1,5 @@
 import os
-from PIL import Image
+from PIL import Image as Img
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import *
@@ -43,7 +43,7 @@ class ImageProcessing(Frame):
         # factor = self.compressfactor.get()
         factor = self.compressfactorCombobox.get()
         factor = int(factor)
-        img = Image.open(img)
+        img = Img.open(img)
         output_dir = "images_2"
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
@@ -59,3 +59,4 @@ class ImageProcessing(Frame):
                                          ('jpeg', '*jpeg'), ('gif', '*.gif')])
         self.imgEntry.delete(0, END)
         self.imgEntry.insert(0, img)
+        
