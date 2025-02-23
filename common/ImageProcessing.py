@@ -1,4 +1,5 @@
 import os
+from PIL import Image
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import *

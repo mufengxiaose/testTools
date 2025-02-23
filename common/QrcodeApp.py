@@ -1,5 +1,8 @@
+import qrcode
+import os
 from tkinter import *
 from PIL import Image, ImageTk
+from common.common import CommonFunc
 
 class QrcodeApp(Frame):
     '''二维码生成'''

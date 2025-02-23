@@ -8,7 +8,7 @@ class TimesstampHash(Frame):
     def __init__(self, master):
         Frame.__init__(self, master)
         self.pack()
-
+        self.master = master
         self.frame = Frame(self)
         self.frame.pack()
 
@@ -94,4 +94,4 @@ class TimesstampHash(Frame):
         '''时间显示'''
         now = time.strftime("%Y-%m-%d %H:%M:%S") #格式化时间
         self.now_time_label.configure(text=now) #label时间填充
-        # root.after(1000, self.update_time) # 1000 ms后调用
+        self.master.after(1000, self.update_time)
