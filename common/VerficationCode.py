@@ -171,7 +171,8 @@ class VerficationCode(Frame):
             response.raise_for_status()
             return response.json()
         except requests.RequestException as e:
-            return response.json()
+            messagebox.showinfo(message="cookies 可能过期")
+            print(f"请求失败：{e}")
             
     def on_fixed_verification_code_bt_click(self):
         '''
