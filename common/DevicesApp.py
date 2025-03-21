@@ -66,10 +66,16 @@ class DevicesApp(Frame):
     #手机状态部分
     def callScrcpy(self):
         '''使用scrcpy功能'''
-        if CommonFunc().getSystemName() == 'Window':
-            pass
-        else:
-            return os.popen('scrcpy')
+        status = CommonFunc().runCmd("adb devices").strip()
+        try:
+            if status == "List of devices attached":
+                return messagebox.showinfo(message="设备链接失败\n请重新链接手机")
+            if CommonFunc().getSystemName() == 'Window':
+                pass
+            else:
+                return os.popen('scrcpy')
+        except Exception as e:
+            print(f'投屏失败{e}')
 
     def GetDeviceList(self):
         '''获取设备状态'''
@@ -127,7 +133,7 @@ class DevicesApp(Frame):
         str = "adb shell screencap -p /sdcard/" +  ctime + ".png"
         pull_str = "adb pull /sdcard/" + ctime + ".png" + " " + scr_file
         if status == "List of devices attached":
-            return messagebox.showinfo(message="手机未链接\n请重新链接手机")
+            messagebox.showinfo(message="手机未链接\n请重新链接手机")
         else:
             CommonFunc().runCmd(str)
             CommonFunc().runCmd(pull_str)
@@ -150,8 +156,13 @@ class DevicesApp(Frame):
         top = Toplevel()
         top.title("截图")
         top.geometry('320x630')
-        label = Label(top, image=self.showScreenshotPic())
-        label.pack()
+        image_ = self.showScreenshotPic()
+        if image_:
+            label = Label(top, image=image_)
+            label.pack()
+        else:
+            messagebox.showinfo(message="截图失败")
+            
     # 重启手机
     def resetDevices(self):
         str0 = "adb reboot"
@@ -182,7 +193,6 @@ class DevicesApp(Frame):
                     universal_newlines=True
                 )
                 stdout, stderr = process.communicate()
-                messagebox.showinfo(message="推送中。。。")
                 if process.returncode == 0:
                     # 命令执行成功
                     print("文件推送成功！")
