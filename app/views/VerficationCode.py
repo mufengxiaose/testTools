@@ -7,6 +7,7 @@ from tkinter import ttk
 from tkinter import messagebox
 from urllib.parse import urlencode
 from common.DcaseTransformation import *
+from app.stytles.tk_stytles import STYTLE
 
 
 class VerficationCode(Frame):
@@ -16,8 +17,8 @@ class VerficationCode(Frame):
         # 调用pack方法将Frame放置到父窗口中
         self.pack()
         # 创建一个子Frame用于布局UI元素
-        self.frame = Frame(self)
-        self.frame.pack()
+        self.frame = Frame(self, **STYTLE["frame"])
+        self.frame.pack(fill=BOTH, expand=True)
         # 调用ui方法进行UI布局
         self.ui()
 
@@ -27,7 +28,7 @@ class VerficationCode(Frame):
         # 定义可选择的appid选项
         option = ['KF微信', 'KF支付宝', 'KF乘客', 'KF司机'] 
         # 创建手机号标签
-        phone_label = Label(self.frame, text='手机号')
+        phone_label = Label(self.frame, text='手机号', **STYTLE["label"])
         # 将手机号标签放置到网格布局中
         phone_label.grid(row=0, column=0, sticky=NSEW)
         # 创建手机号输入框
@@ -35,7 +36,7 @@ class VerficationCode(Frame):
         # 将手机号输入框放置到网格布局中
         self.phone_entry.grid(row=0, column=1)
         # 创建appid标签
-        appid_label = Label(self.frame, text="appid")
+        appid_label = Label(self.frame, text="appid", **STYTLE["label"])
         # 将appid标签放置到网格布局中
         appid_label.grid(row=0, column=2, sticky=NSEW)
         # 创建下拉选择框，用于选择appid
@@ -45,13 +46,14 @@ class VerficationCode(Frame):
         # 将下拉选择框放置到网格布局中
         self.combo.grid(row=0, column=3, sticky=NSEW)
         # 创建获取验证码按钮，并绑定点击事件处理函数
-        self.button_get = Button(self.frame, text="获取", command=self.on_get_code_bt_click)
+        self.button_get = Button(self.frame, text="获取",
+                                 command=self.on_get_code_bt_click, **STYTLE["button"])
         # 将获取验证码按钮放置到网格布局中
         self.button_get.grid(row=0, column=4, sticky=NSEW)  
 
         # 验证码固定
         # 创建输入验证码标签
-        self.fixed_verification_code_label = Label(self.frame, text="输入验证码")
+        self.fixed_verification_code_label = Label(self.frame, text="输入验证码", **STYTLE["label"])
         # 将输入验证码标签放置到网格布局中
         self.fixed_verification_code_label.grid(row=1, column=2, sticky=NSEW)
         # 创建输入验证码输入框
@@ -59,19 +61,20 @@ class VerficationCode(Frame):
         # 将输入验证码输入框放置到网格布局中
         self.fixed_verification_code_entry.grid(row=1, column=3, sticky=NSEW)
         # 创建固定验证码按钮，并绑定点击事件处理函数
-        self.fixed_verification_code_bt = Button(self.frame, text="固定", command=self.on_fixed_verification_code_bt_click)
+        self.fixed_verification_code_bt = Button(self.frame, text="固定",
+                                                 command=self.on_fixed_verification_code_bt_click, **STYTLE["button"])
         # 将固定验证码按钮放置到网格布局中
         self.fixed_verification_code_bt.grid(row=1, column=4, sticky=NSEW)
 
         # 测试号延期
         # 创建测试号延期按钮，并绑定点击事件处理函数
-        number_extension_bt = Button(self.frame, text="测试号延期", command=self.on_number_extension_bt_click)
+        number_extension_bt = Button(self.frame, text="测试号延期", command=self.on_number_extension_bt_click, **STYTLE["button"])
         # 将测试号延期按钮放置到网格布局中
         number_extension_bt.grid(row=0, column=5)
 
         # cookies
         # 创建cookies标签
-        cookies_label = Label(self.frame, text="cookies")
+        cookies_label = Label(self.frame, text="cookies", **STYTLE["label"])
         # 将cookies标签放置到网格布局中
         cookies_label.grid(row=3, column=2)
         # 创建cookies文本输入框
@@ -83,7 +86,7 @@ class VerficationCode(Frame):
         # 定义默认提示文本
         self.default_text = "多手机号逗号间隔"
         # 创建多测试号延期标签
-        nums_label = Label(self.frame, text="多测试号延期")
+        nums_label = Label(self.frame, text="多测试号延期", **STYTLE["label"])
         # 将多测试号延期标签放置到网格布局中
         nums_label.grid(row=2, column=2)
         # 创建多测试号输入框，设置初始文本和颜色
@@ -94,13 +97,13 @@ class VerficationCode(Frame):
         # 绑定鼠标点击事件，用于清除默认提示文本
         self.nums_text.bind("<Button-1>", self.clear_nums_text_default_text)
         # 创建一键续期按钮，并绑定点击事件处理函数
-        nums_extension_bt = Button(self.frame, text="一键续期", command=self.nums_extension_bt_click)
+        nums_extension_bt = Button(self.frame, text="一键续期", command=self.nums_extension_bt_click, **STYTLE["button"])
         # 将一键续期按钮放置到网格布局中
         nums_extension_bt.grid(row=2, column=4)
 
         # case转换
         # 创建导入文件按钮，并绑定点击事件处理函数
-        case_file_bt = Button(self.frame, text="导入文件", command=self.insert_file_path)
+        case_file_bt = Button(self.frame, text="导入文件", command=self.insert_file_path, **STYTLE["button"])
         # 将导入文件按钮放置到网格布局中
         case_file_bt.grid(row=4, column=2)
         # 创建文件路径输入框
@@ -108,7 +111,7 @@ class VerficationCode(Frame):
         # 将文件路径输入框放置到网格布局中
         self.case_file_entry.grid(row=4, column=3, sticky=NSEW)
         # 创建生成按钮，并绑定点击事件处理函数
-        case_conversion_bt = Button(self.frame, text="生成", command=self.case_conversion_bt_click)
+        case_conversion_bt = Button(self.frame, text="生成", command=self.case_conversion_bt_click, **STYTLE["button"])
         # 将生成按钮放置到网格布局中
         case_conversion_bt.grid(row=4, column=4)
 

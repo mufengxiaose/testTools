@@ -3,7 +3,7 @@ from PIL import Image as Img
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import *
-
+from app.stytles.tk_stytles import STYTLE
 class ImageProcessing(Frame):
     '''
     图片处理功能
@@ -11,8 +11,8 @@ class ImageProcessing(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.pack
-        self.frame = Frame(self)
-        self.frame.pack()
+        self.frame = Frame(self, **STYTLE["frame"])
+        self.frame.pack(fill=BOTH, expand=True)
         self.ImgGui()
 
     def ImgGui(self):

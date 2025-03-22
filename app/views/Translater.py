@@ -2,15 +2,15 @@ import requests
 import random
 import hashlib
 from tkinter import *
-
+from app.stytles.tk_stytles import STYTLE
 class TranslaterApp(Frame):
     '''翻译功能'''
     def __init__(self, master):
         Frame.__init__(self, master)
         self.pack()
         # 设置frame
-        text_frame = Frame(self, borderwidth=1, relief='sunken',width=500, height=600)
-        text_frame.pack()
+        text_frame = Frame(self, **STYTLE["frame"])
+        text_frame.pack(fill=BOTH, expand=True)
 
         data = ['英译汉','汉英译']
         self.combobox = ttk.Combobox(text_frame)

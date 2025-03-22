@@ -1,7 +1,7 @@
 import time,datetime
 from tkinter import *
 from tkinter import ttk
-
+from app.stytles.tk_stytles import STYTLE
 
 class TimesstampHash(Frame):
     '''时间戳、md5转换'''
@@ -9,8 +9,8 @@ class TimesstampHash(Frame):
         Frame.__init__(self, master)
         self.pack()
         self.master = master
-        self.frame = Frame(self)
-        self.frame.pack()
+        self.frame = Frame(self, **STYTLE["frame"])
+        self.frame.pack(fill=BOTH, expand=True)
 
         self.times_stamp_wedgit()
 

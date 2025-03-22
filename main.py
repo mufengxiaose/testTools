@@ -1,16 +1,13 @@
-import os
-from tkinter import Tk, ttk
-from tkinter.filedialog import *
+from tkinter import Tk
 from tkinter import ttk
-from tkinter import messagebox
-from common.VerficationCode import VerficationCode
-from common.Translater import TranslaterApp
-from common.QrcodeApp import QrcodeApp
-from common.TimesstampHash import TimesstampHash
-from common.Health import Health
-from common.ImageProcessing import ImageProcessing
-from common.DevicesApp import DevicesApp
-from common.PanedWindowDemo import CustomFrame
+from app.views.VerficationCode import VerficationCode
+from app.views.Translater import TranslaterApp
+from app.views.QrcodeApp import QrcodeApp
+from app.views.TimesstampHash import TimesstampHash
+from app.views.Health import Health
+from app.views.ImageProcessing import ImageProcessing
+from app.views.DevicesApp import DevicesApp
+from app.views.PanedWindowDemo import CustomFrame
 
 
 if __name__ == "__main__":

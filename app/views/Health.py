@@ -1,16 +1,16 @@
 from tkinter import *
 from tkinter import messagebox
-
+from app.stytles.tk_stytles import STYTLE
 class Health(Frame):
     '''健康测量'''
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.pack()
 
-        self.frame = Frame(self)
+        self.frame = Frame(self, **STYTLE["frame"])
         self.weightX = StringVar()
         self.heightX = StringVar()
-        self.frame.pack()
+        self.frame.pack(fill=BOTH, expand=True)
         self.BMIGui()
 
 

@@ -8,10 +8,12 @@ from tkinter import *
 from tkinter import messagebox
 from PIL import ImageTk
 from PIL import Image
-from common.common import CommonFunc
-from common.Logger import Logger
+from app.utils.common import CommonFunc
+from app.views.Logger import Logger
+from app.stytles.tk_stytles import STYTLE
 
 logger = Logger(log_file="logs/app.log").get_logger()
+
 
 class DevicesApp(Frame):
     '''手机部分'''
@@ -19,42 +21,43 @@ class DevicesApp(Frame):
         Frame.__init__(self, master)
         self.pack()
 
-        self.deviceFrame = Frame(self)
-        self.deviceFrame.grid()
+        self.deviceFrame = Frame(self, **STYTLE["frame"])
+        self.deviceFrame.pack(fill=BOTH, expand=True)
         # 手机链接状态，设备名显示
-        self.status_label = Label(self.deviceFrame, text="设备链接状态：")
+        self.status_label = Label(self.deviceFrame, text="设备链接状态：", **STYTLE["label"])
         self.status_label.grid(row=0, column=0, sticky=W)
 
         self.status_text = Text(self.deviceFrame, width=40, height=1, font=20)
         self.status_text.grid(row=0, column=1, sticky=W, columnspan=3)
 
         self.refresh_status_bt = Button(self.deviceFrame, text="刷新状态", width=12,
-                                           command=self.deviceConnect)
+                                           command=self.deviceConnect, **STYTLE["button"])
         self.refresh_status_bt.grid(row=0, column=4)
 
         # 获取手机日志
-        self.log_label = Label(self.deviceFrame, text="日志存放路径：")
+        self.log_label = Label(self.deviceFrame, text="日志存放路径：", **STYTLE["label"])
         self.log_label.grid(row=1, column=0, sticky=W)
 
-        self.log_text = Entry(self.deviceFrame, width=40)
+        self.log_text = Text(self.deviceFrame, width=40, height=1, font=20)
         self.log_text.grid(row=1, column=1, sticky=W, columnspan=3)
 
         self.get_log_bt = Button(self.deviceFrame, width=12, text="获取手机日志",
-                                    command=self.showLogPath)
+                                    command=self.show_log_path, **STYTLE["button"])
         self.get_log_bt.grid(row=1, column=4, sticky=W)
 
         # Android屏幕共享
-        self.scrcpy_bt = Button(self.deviceFrame, text="投屏", width=12, command=self.callScrcpy)
+        self.scrcpy_bt = Button(self.deviceFrame, text="投屏", width=12, 
+                                command=self.callScrcpy, **STYTLE["button"])
         self.scrcpy_bt.grid(row=4, column=0, sticky=W)
 
         # Android截图
         self.screenshot_bt = Button(self.deviceFrame, text="手机截图", width=12,
-                                       command=self.creatScreenshotToplevel)
+                                       command=self.creatScreenshotToplevel, **STYTLE["button"])
         self.screenshot_bt.grid(row=4, column=1, sticky=W)
 
         # 重启手机
         self.reset_devices_bt = Button(self.deviceFrame, text='重启手机', width=12,
-                                          command=self.resetDevices)
+                                          command=self.resetDevices, **STYTLE["button"])
         self.reset_devices_bt.grid(row=4, column=2, sticky=W)
 
         # 启动app直接获取设备链接状态
@@ -99,11 +102,18 @@ class DevicesApp(Frame):
     #log 部分
     def get_log(self):
         '''获取设备日志'''
-        log_file_name = self.create_log_file_name()
-        adb_logcat_text = "adb logcat -v threadtime > " + log_file_name
-        adb_logcat = subprocess.Popen(args=adb_logcat_text, shell=True, stdin=subprocess.PIPE, stdout=None)
-        time.sleep(8)
-        os.system("taskkill /t /f /pid {}".format(adb_logcat.pid))
+        status = self.get_devices_status()
+        try:
+            if status == "List of devices attached":
+                messagebox.showinfo(message="手机未链接\n请重新链接手机")
+            else:
+                log_file_name = self.create_log_file_name()
+                adb_logcat_text = "adb logcat -v threadtime > " + log_file_name
+                adb_logcat = subprocess.Popen(args=adb_logcat_text, shell=True, stdin=subprocess.PIPE, stdout=None)
+                time.sleep(8)
+                os.system("taskkill /t /f /pid {}".format(adb_logcat.pid))
+        except Exception as e:
+            logger.info(f"get_log_error_{e}")
     
     def create_log_file_name(self):
         '''
@@ -113,8 +123,8 @@ class DevicesApp(Frame):
         log_path = '/mobile_log'
         CommonFunc().creatFile(file_path=log_path)
         log_file = os.getcwd() + log_path
-        ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        log_name = log_file + "/" + ctime + ".log"
+        format_time = self.create_format_time()
+        log_name = log_file + "/" + format_time + ".log"
         return log_name
 
     
@@ -129,16 +139,18 @@ class DevicesApp(Frame):
     def get_devices_status(self):
         adb_devices = "adb devices"
         status = CommonFunc().runCmd(content=adb_devices).strip()
-        try:
-            if status == "List of devices attached":
-                messagebox.showinfo(message="手机未链接\n请重新链接手机")
-        except Exception as e:
-            logger.info("{e}")
+        return status
 
-    def showLogPath(self):
+    def show_log_path(self):
         '''日志路径显示'''
-        self.log_text.delete(1, END)
-        self.log_text.insert(1, self.get_log())
+        status = self.get_devices_status()
+        try:
+            if status == "device":
+                self.log_text.delete(1.0, END)
+                self.get_log()
+                self.log_text.insert(1.0, self.create_log_file_name())
+        except Exception as e:
+            logger.info(f"show_log_path_error{e}")
 
     def create_format_time(self):
         format_time = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
@@ -154,18 +166,21 @@ class DevicesApp(Frame):
         picture = format_time + ".png"
         screen_pic = "adb shell screencap -p /sdcard/" + picture
         pull_pic = "adb pull /sdcard/" + picture + " " + scr_path
+        status = self.get_devices_status()
         try:
-            self.get_devices_status()
+            if status == "List of devices attached":
+                messagebox.showinfo(message="手机未链接\n请重新链接手机")
             # 截图
-            CommonFunc().runCmd(screen_pic)
-            # pull
-            CommonFunc().runCmd(pull_pic)
-            lists = os.listdir(scr_path)
-            lists.sort(key=lambda fn: os.path.getmtime(scr_path + '/' + fn))
-            file_new = os.path.join(scr_path, lists[-1])
-            return file_new
+            else:
+                CommonFunc().runCmd(screen_pic)
+                # pull
+                CommonFunc().runCmd(pull_pic)
+                lists = os.listdir(scr_path)
+                lists.sort(key=lambda fn: os.path.getmtime(scr_path + '/' + fn))
+                file_new = os.path.join(scr_path, lists[-1])
+                return file_new
         except Exception as e:
-            logger.info('截图功能错误{e}')
+            logger.info(f'screen_pic_failed_{e}')
 
     def showScreenshotPic(self):
         '''显示截图'''
@@ -177,7 +192,8 @@ class DevicesApp(Frame):
             screenImg = ImageTk.PhotoImage(photo)
             return screenImg
         except Exception as e:
-            logger.info("show_screen_pic_error_{e}")
+            logger.info(f"show_screen_pic_error_{e}")
+            return
 
     def creatScreenshotToplevel(self):
         '''创建toplevel'''
@@ -189,10 +205,8 @@ class DevicesApp(Frame):
                 top.geometry('320x630')
                 label = Label(top, image=image_)
                 label.pack()
-            else:
-                messagebox.showinfo(message="截图失败")
         except Exception as e:
-            pass
+            logger.info(f"screen_shot_error_{e}")
             
     # 重启手机
     def resetDevices(self):
@@ -201,13 +215,15 @@ class DevicesApp(Frame):
 
     # push文件功能
     def pushFileUI(self):
-        openFIleBt = Button(self.deviceFrame, text="文件", command=self.get_push_file)
+        openFIleBt = Button(self.deviceFrame, text="文件", command=self.get_push_file,
+                            **STYTLE["button"])
         openFIleBt.grid(row=3, column=0, sticky=W)
 
         self.push_fileEntry = Entry(self.deviceFrame)
         self.push_fileEntry.grid(row=3, column=1, columnspan=3, sticky=NSEW)
 
-        push_Bt = Button(self.deviceFrame, text="push>>sdcard", command=self.on_push_button_click)
+        push_Bt = Button(self.deviceFrame, text="push>>sdcard", 
+                         command=self.on_push_button_click, **STYTLE["button"])
         push_Bt.grid(row=3, column=4, sticky=NSEW)
 
     def adb_push(self, local_path, remote_path):
@@ -256,13 +272,15 @@ class DevicesApp(Frame):
 
     def install_apk(self):
         '''安装apk'''
-        openFIleBt = Button(self.deviceFrame, text="导入安装包", command=self.get_file_path)
+        openFIleBt = Button(self.deviceFrame, text="导入安装包", 
+                            command=self.get_file_path, **STYTLE["button"])
         openFIleBt.grid(row=2, column=0, sticky=W)
 
         self.adb_install_fileEntry = Entry(self.deviceFrame)
         self.adb_install_fileEntry.grid(row=2, column=1, columnspan=3, sticky=NSEW)
 
-        installBt = Button(self.deviceFrame, text="安装", command=self.on_adb_install_click)
+        installBt = Button(self.deviceFrame, text="安装", 
+                           command=self.on_adb_install_click, **STYTLE["button"])
         installBt.grid(row=2, column=4, sticky=NSEW)
 
     def get_file_path(self):

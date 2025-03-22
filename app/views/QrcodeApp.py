@@ -2,7 +2,8 @@ import qrcode
 import os
 from tkinter import *
 from PIL import Image, ImageTk
-from common.common import CommonFunc
+from app.utils.common import CommonFunc
+from app.stytles.tk_stytles import STYTLE
 
 class QrcodeApp(Frame):
     '''二维码生成'''
@@ -10,8 +11,8 @@ class QrcodeApp(Frame):
         Frame.__init__(self, master)
         self.pack()
         # 设置frame
-        self.qrcodeFrame = Frame(self, width=1000)
-        self.qrcodeFrame.grid()
+        self.qrcodeFrame = Frame(self, **STYTLE["frame"])
+        self.qrcodeFrame.pack(fill=BOTH, expand=True)
         # 输入文字
         self.input_text = Text(self.qrcodeFrame, height=6, width=100)
         self.input_text.grid(row=0, column=0, sticky=NSEW)
