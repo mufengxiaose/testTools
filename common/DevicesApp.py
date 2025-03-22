@@ -9,7 +9,9 @@ from tkinter import messagebox
 from PIL import ImageTk
 from PIL import Image
 from common.common import CommonFunc
+from common.Logger import Logger
 
+logger = Logger(log_file="logs/app.log").get_logger()
 
 class DevicesApp(Frame):
     '''手机部分'''
@@ -95,20 +97,26 @@ class DevicesApp(Frame):
         self.status_text.insert(1.0, self.GetDeviceList())
 
     #log 部分
-    def GetLog(self):
+    def get_log(self):
         '''获取设备日志'''
-        _file = '/mobile_log'
-        CommonFunc().creatFile(file_path=_file)
-        log_file = os.getcwd() + _file
-        ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        file = "adb logcat -v threadtime > " + log_file + "/" + ctime + ".log"
-        log1 = subprocess.Popen(args=file, shell=True, stdin=subprocess.PIPE, stdout=None)
+        log_file_name = self.create_log_file_name()
+        adb_logcat_text = "adb logcat -v threadtime > " + log_file_name
+        adb_logcat = subprocess.Popen(args=adb_logcat_text, shell=True, stdin=subprocess.PIPE, stdout=None)
         time.sleep(8)
-        os.system("taskkill /t /f /pid {}".format(log1.pid))
-        lists = os.listdir(log_file)
-        lists.sort(key=lambda fn:os.path.getmtime(log_file + '/' + fn))
-        file_new = os.path.join(log_file, lists[-1])
-        return file_new
+        os.system("taskkill /t /f /pid {}".format(adb_logcat.pid))
+    
+    def create_log_file_name(self):
+        '''
+        生成日志路径
+        :return:
+        '''
+        log_path = '/mobile_log'
+        CommonFunc().creatFile(file_path=log_path)
+        log_file = os.getcwd() + log_path
+        ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        log_name = log_file + "/" + ctime + ".log"
+        return log_name
+
     
     # def log_thread(self):
     #     thread = threading.Thread(target=self.GetLog)
@@ -117,56 +125,79 @@ class DevicesApp(Frame):
     # def on_log_button_click(self):
     #     self.log_thread()
 
+    # 获取设备当前状态
+    def get_devices_status(self):
+        adb_devices = "adb devices"
+        status = CommonFunc().runCmd(content=adb_devices).strip()
+        try:
+            if status == "List of devices attached":
+                messagebox.showinfo(message="手机未链接\n请重新链接手机")
+        except Exception as e:
+            logger.info("{e}")
+
     def showLogPath(self):
         '''日志路径显示'''
         self.log_text.delete(1, END)
-        self.log_text.insert(1, self.GetLog())
+        self.log_text.insert(1, self.get_log())
 
+    def create_format_time(self):
+        format_time = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        return format_time
+    
     #Android手机截图
     def screenshotMethod(self):
         """截图"""
         _file = "/screenShot"
         CommonFunc().creatFile(file_path=_file)
-        scr_file = os.getcwd() + _file
-        ctime = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        status = CommonFunc().runCmd("adb devices").strip()
-        str = "adb shell screencap -p /sdcard/" +  ctime + ".png"
-        pull_str = "adb pull /sdcard/" + ctime + ".png" + " " + scr_file
-        if status == "List of devices attached":
-            messagebox.showinfo(message="手机未链接\n请重新链接手机")
-        else:
-            CommonFunc().runCmd(str)
-            CommonFunc().runCmd(pull_str)
-            lists = os.listdir(scr_file)
-            lists.sort(key=lambda fn: os.path.getmtime(scr_file + '/' + fn))
-            file_new = os.path.join(scr_file, lists[-1])
+        scr_path = os.getcwd() + _file
+        format_time = self.create_format_time()
+        picture = format_time + ".png"
+        screen_pic = "adb shell screencap -p /sdcard/" + picture
+        pull_pic = "adb pull /sdcard/" + picture + " " + scr_path
+        try:
+            self.get_devices_status()
+            # 截图
+            CommonFunc().runCmd(screen_pic)
+            # pull
+            CommonFunc().runCmd(pull_pic)
+            lists = os.listdir(scr_path)
+            lists.sort(key=lambda fn: os.path.getmtime(scr_path + '/' + fn))
+            file_new = os.path.join(scr_path, lists[-1])
             return file_new
+        except Exception as e:
+            logger.info('截图功能错误{e}')
 
     def showScreenshotPic(self):
         '''显示截图'''
         global screenImg
-        photo = Image.open(self.screenshotMethod())
-        width, height = photo.size[0], photo.size[1] #获取图片宽高
-        photo = photo.resize((int(width*0.3), int(height*0.3))) #图盘等比缩放
-        screenImg = ImageTk.PhotoImage(photo)
-        return screenImg
+        try:
+            photo = Image.open(self.screenshotMethod())
+            width, height = photo.size[0], photo.size[1] #获取图片宽高
+            photo = photo.resize((int(width*0.3), int(height*0.3))) #图盘等比缩放
+            screenImg = ImageTk.PhotoImage(photo)
+            return screenImg
+        except Exception as e:
+            logger.info("show_screen_pic_error_{e}")
 
     def creatScreenshotToplevel(self):
         '''创建toplevel'''
-        top = Toplevel()
-        top.title("截图")
-        top.geometry('320x630')
         image_ = self.showScreenshotPic()
-        if image_:
-            label = Label(top, image=image_)
-            label.pack()
-        else:
-            messagebox.showinfo(message="截图失败")
+        try:
+            if image_:
+                top = Toplevel()
+                top.title("截图")
+                top.geometry('320x630')
+                label = Label(top, image=image_)
+                label.pack()
+            else:
+                messagebox.showinfo(message="截图失败")
+        except Exception as e:
+            pass
             
     # 重启手机
     def resetDevices(self):
-        str0 = "adb reboot"
-        return CommonFunc().runCmd(str0)
+        reboot = "adb reboot"
+        return CommonFunc().runCmd(reboot)
 
     # push文件功能
     def pushFileUI(self):

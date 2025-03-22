@@ -4,9 +4,9 @@ import platform
 class CommonFunc():
     '''通用功能封装'''
 
-    def runCmd(self, master):
+    def runCmd(self, content):
         '''执行cmd'''
-        return os.popen(master).read()
+        return os.popen(content).read()
 
     def creatFile(self, file_path):
         """判断目录是否存在，没有则创建"""
@@ -20,3 +20,5 @@ class CommonFunc():
     def getSystemName(self):
         '''获取电脑系统名称'''
         return platform.system()
+
+
