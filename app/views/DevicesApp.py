@@ -9,7 +9,7 @@ from tkinter import messagebox
 from PIL import ImageTk
 from PIL import Image
 from app.utils.common import CommonFunc
-from app.views.Logger import Logger
+from app.utils.Logger import Logger
 from app.stytles.tk_stytles import STYTLE
 
 logger = Logger(log_file="logs/app.log").get_logger()
@@ -98,6 +98,7 @@ class DevicesApp(Frame):
         '''设备链接'''
         self.status_text.delete(1.0, END)
         self.status_text.insert(1.0, self.GetDeviceList())
+        logger.info(f"deviceConnect_click_{self.deviceConnect}")
 
     #log 部分
     def get_log(self):
@@ -145,9 +146,11 @@ class DevicesApp(Frame):
         '''日志路径显示'''
         status = self.get_devices_status()
         try:
-            if status == "device":
-                self.log_text.delete(1.0, END)
+            if status == "List of devices attached":
+                logger.info(f"show_log_path_device_link_error_{status}")
+            else:
                 self.get_log()
+                self.log_text.delete(1.0, END)
                 self.log_text.insert(1.0, self.create_log_file_name())
         except Exception as e:
             logger.info(f"show_log_path_error{e}")
@@ -293,16 +296,23 @@ class DevicesApp(Frame):
         '''安装package'''
         local_path = self.adb_install_fileEntry.get()
         print(local_path)
-        if local_path:
-            status = CommonFunc().runCmd("adb devices").strip()
+        status = self.get_devices_status()
+        adb_install = ["adb", "install", " ", local_path]
+        # adb_install = "adb install" + " "
+        if local_path:          
             if status == "List of devices attached":
                 return messagebox.showinfo(message="手机未链接\n请重新链接手机")
             elif " " in local_path:
                 messagebox.showinfo(message="apk路径有空格\n安装失败")
-            elif ".apk" in str(local_path):
-                p = "adb install "
-                messagebox.showinfo(message="安装中...")
-                if "Success" in CommonFunc().runCmd(p + local_path):
+            elif ".apk" in str(local_path):              
+            #     messagebox.showinfo(message="安装中...")
+            #     if "Success" in CommonFunc().runCmd(adb_install + local_path):
+            #         messagebox.showinfo(message="安装成功")
+            #     else:
+            #         messagebox.showinfo(message="安装失败")
+                
+                stdout, stderr = CommonFunc().run_subprocess_popen(args=adb_install)
+                if "Success" in stdout:
                     messagebox.showinfo(message="安装成功")
                 else:
                     messagebox.showinfo(message="安装失败")

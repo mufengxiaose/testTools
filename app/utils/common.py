@@ -1,5 +1,6 @@
 import os
 import platform
+import subprocess
 
 class CommonFunc():
     '''通用功能封装'''
@@ -20,5 +21,8 @@ class CommonFunc():
     def getSystemName(self):
         '''获取电脑系统名称'''
         return platform.system()
-
-
+    
+    def run_subprocess_popen(self, args):
+        process = subprocess.Popen(args=args,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        return stdout, stderr

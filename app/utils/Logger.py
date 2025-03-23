@@ -3,7 +3,7 @@ import os
 from logging.handlers import TimedRotatingFileHandler
 
 class Logger:
-    def __init__(self, name='my_logger', log_level=logging.DEBUG, log_file=None):
+    def __init__(self, name='logger', log_level=logging.DEBUG, log_file=None):
         self.logger = logging.getLogger(name)
         self.logger.setLevel(log_level)
         self.logger.handlers.clear()
