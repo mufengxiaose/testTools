@@ -55,16 +55,20 @@ class VerficationCode(Frame):
         # 创建输入验证码标签
         self.fixed_verification_code_label = Label(self.frame, text="输入验证码", **STYTLE["label"])
         # 将输入验证码标签放置到网格布局中
-        self.fixed_verification_code_label.grid(row=1, column=2, sticky=NSEW)
+        self.fixed_verification_code_label.grid(row=2, column=2, sticky=NSEW)
         # 创建输入验证码输入框
-        self.fixed_verification_code_entry = Entry(self.frame, width=20)
+        self.fixed_verification_code_entry = Entry(self.frame, width=20, foreground="gray")
+        self.fixed_verification_code_entry_txt = "非连续性6位数字"
+        self.fixed_verification_code_entry.insert(1, self.fixed_verification_code_entry_txt)
+        self.fixed_verification_code_entry.bind("<Button-1>", self.clear_verfication_code_text_default_text)
+        self.fixed_verification_code_entry.bind("<FocusOut>", self.fixed_verification_code_entry_on_focus_out)
         # 将输入验证码输入框放置到网格布局中
-        self.fixed_verification_code_entry.grid(row=1, column=3, sticky=NSEW)
+        self.fixed_verification_code_entry.grid(row=2, column=3, sticky=NSEW)
         # 创建固定验证码按钮，并绑定点击事件处理函数
         self.fixed_verification_code_bt = Button(self.frame, text="固定",
                                                  command=self.on_fixed_verification_code_bt_click, **STYTLE["button"])
         # 将固定验证码按钮放置到网格布局中
-        self.fixed_verification_code_bt.grid(row=1, column=4, sticky=NSEW)
+        self.fixed_verification_code_bt.grid(row=2, column=4, sticky=NSEW)
 
         # 测试号延期
         # 创建测试号延期按钮，并绑定点击事件处理函数
@@ -88,18 +92,19 @@ class VerficationCode(Frame):
         # 创建多测试号延期标签
         nums_label = Label(self.frame, text="多测试号延期", **STYTLE["label"])
         # 将多测试号延期标签放置到网格布局中
-        nums_label.grid(row=2, column=2)
+        nums_label.grid(row=1, column=2)
         # 创建多测试号输入框，设置初始文本和颜色
         self.nums_text = Text(self.frame, width=50, height=5, foreground="gray")
         self.nums_text.insert(1.0, self.default_text)
         # 将多测试号输入框放置到网格布局中
-        self.nums_text.grid(row=2, column=3)
+        self.nums_text.grid(row=1, column=3)
         # 绑定鼠标点击事件，用于清除默认提示文本
         self.nums_text.bind("<Button-1>", self.clear_nums_text_default_text)
+        self.nums_text.bind("<FocusOut>", self.nums_text_on_focus_out)
         # 创建一键续期按钮，并绑定点击事件处理函数
         nums_extension_bt = Button(self.frame, text="一键续期", command=self.nums_extension_bt_click, **STYTLE["button"])
         # 将一键续期按钮放置到网格布局中
-        nums_extension_bt.grid(row=2, column=4)
+        nums_extension_bt.grid(row=1, column=4)
 
         # case转换
         # 创建导入文件按钮，并绑定点击事件处理函数
@@ -342,3 +347,25 @@ class VerficationCode(Frame):
         except Exception as e:
             # 如果发生异常，记录错误日志
             logging.error(f"主程序运行时出错: {e}")
+
+    def clear_verfication_code_text_default_text(self, event):
+        # 获取多测试号输入框中的内容，并去除首尾空格
+        current_text = self.fixed_verification_code_entry.get().strip()
+        # 判断内容是否为默认文案
+        if current_text == self.fixed_verification_code_entry_txt:
+            # 清除默认文案
+            self.fixed_verification_code_entry.delete(0, END)
+            # 设置文本颜色为黑色
+            self.fixed_verification_code_entry.config(fg="black")
+    
+    def fixed_verification_code_entry_on_focus_out(self, event):
+        """当 Entry 失去焦点时，恢复原文案"""
+        if self.fixed_verification_code_entry.get() == "":
+            self.fixed_verification_code_entry.insert(0, self.fixed_verification_code_entry_txt)  # 恢复原文案
+            self.fixed_verification_code_entry.config(fg="gray")  # 设置文字颜色为灰色
+    
+    def nums_text_on_focus_out(self, event):
+        """当 Entry 失去焦点时，恢复原文案"""
+        if self.nums_text.get("1.0", END).strip() == "":
+            self.nums_text.insert("1.0", self.default_text)  # 恢复原文案
+            self.nums_text.config(fg="gray")  # 设置文字颜色为灰色
