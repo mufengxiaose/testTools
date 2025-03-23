@@ -36,7 +36,7 @@ class VerficationCode(Frame):
         # 将手机号输入框放置到网格布局中
         self.phone_entry.grid(row=0, column=1)
         # 创建appid标签
-        appid_label = Label(self.frame, text="appid", **STYTLE["label"])
+        appid_label = Label(self.frame, text="appid，仅线上", **STYTLE["label"])
         # 将appid标签放置到网格布局中
         appid_label.grid(row=0, column=2, sticky=NSEW)
         # 创建下拉选择框，用于选择appid
@@ -53,7 +53,7 @@ class VerficationCode(Frame):
 
         # 验证码固定
         # 创建输入验证码标签
-        self.fixed_verification_code_label = Label(self.frame, text="输入验证码", **STYTLE["label"])
+        self.fixed_verification_code_label = Label(self.frame, text="固定验证码输入", **STYTLE["label"])
         # 将输入验证码标签放置到网格布局中
         self.fixed_verification_code_label.grid(row=2, column=2, sticky=NSEW)
         # 创建输入验证码输入框
@@ -90,7 +90,7 @@ class VerficationCode(Frame):
         # 定义默认提示文本
         self.default_text = "多手机号逗号间隔"
         # 创建多测试号延期标签
-        nums_label = Label(self.frame, text="多测试号延期", **STYTLE["label"])
+        nums_label = Label(self.frame, text="输入要延期测试账号", **STYTLE["label"])
         # 将多测试号延期标签放置到网格布局中
         nums_label.grid(row=1, column=2)
         # 创建多测试号输入框，设置初始文本和颜色
