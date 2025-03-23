@@ -12,7 +12,7 @@ from app.utils.common import CommonFunc
 from app.utils.Logger import Logger
 from app.stytles.tk_stytles import STYTLE
 
-logger = Logger(log_file="logs/app.log").get_logger()
+logger = Logger().get_logger()
 
 
 class DevicesApp(Frame):
