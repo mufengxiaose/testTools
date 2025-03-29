@@ -201,12 +201,14 @@ class DevicesApp(Frame):
     def creatScreenshotToplevel(self):
         '''创建toplevel'''
         image_ = self.showScreenshotPic()
+        if hasattr(self, 'top') and isinstance(self.top, Toplevel):
+            self.top.destroy()
         try:
             if image_:
-                top = Toplevel()
-                top.title("截图")
-                top.geometry('320x630')
-                label = Label(top, image=image_)
+                self.top = Toplevel()
+                self.top.title("截图")
+                self.top.geometry('320x630')
+                label = Label(self.top, image=image_)
                 label.pack()
         except Exception as e:
             logger.info(f"screen_shot_error_{e}")
