@@ -6,8 +6,9 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from urllib.parse import urlencode
-from common.DcaseTransformation import *
+from app.utils.DcaseFormation import *
 from app.stytles.tk_stytles import STYTLE
+
 
 
 class VerficationCode(Frame):
@@ -21,6 +22,8 @@ class VerficationCode(Frame):
         self.frame.pack(fill=BOTH, expand=True)
         # 调用ui方法进行UI布局
         self.ui()
+        # dcase转换
+        self.dcase_formation_ui()
 
     def ui(self):
         '''ui布局'''
@@ -106,19 +109,6 @@ class VerficationCode(Frame):
         # 将一键续期按钮放置到网格布局中
         nums_extension_bt.grid(row=1, column=4)
 
-        # case转换
-        # 创建导入文件按钮，并绑定点击事件处理函数
-        case_file_bt = Button(self.frame, text="导入文件", command=self.insert_file_path, **STYTLE["button"])
-        # 将导入文件按钮放置到网格布局中
-        case_file_bt.grid(row=4, column=2)
-        # 创建文件路径输入框
-        self.case_file_entry = Entry(self.frame)
-        # 将文件路径输入框放置到网格布局中
-        self.case_file_entry.grid(row=4, column=3, sticky=NSEW)
-        # 创建生成按钮，并绑定点击事件处理函数
-        case_conversion_bt = Button(self.frame, text="生成", command=self.case_conversion_bt_click, **STYTLE["button"])
-        # 将生成按钮放置到网格布局中
-        case_conversion_bt.grid(row=4, column=4)
 
     def get_phone_appid(self):
         '''获取验证码'''
@@ -369,3 +359,12 @@ class VerficationCode(Frame):
         if self.nums_text.get("1.0", END).strip() == "":
             self.nums_text.insert("1.0", self.default_text)  # 恢复原文案
             self.nums_text.config(fg="gray")  # 设置文字颜色为灰色
+
+    def dcase_formation_ui(self):
+        separator = ttk.Separator(self.frame, style="BlackSeparator.TSeparator")
+        separator.grid(row=4, column=0, sticky="ew", pady=10, columnspan=8)
+        # 创建选择文件按钮，点击时调用 select_file 函数
+        select_button = Button(self.frame, text="选择 Dcase 测试用例文件", command=select_file, **STYTLE['button'])
+        select_button.grid(row=5, column=0)
+
+

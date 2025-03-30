@@ -147,6 +147,8 @@ class DevicesApp(Frame):
         status = self.get_devices_status()
         try:
             if status == "List of devices attached":
+                self.log_text.delete(1.0, END)
+                messagebox.showinfo(message="设备链接失败")
                 logger.info(f"show_log_path_device_link_error_{status}")
             else:
                 self.get_log()
