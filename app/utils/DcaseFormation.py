@@ -167,7 +167,9 @@ def select_file():
             dcaseContent = getDcaseData(file_path)
             # 创建 OE 测试用例文件
             createOECase(parseCase(dcaseContent))
-        messagebox.showinfo(message="转换完成\n文件保存路径\n" + oe_path + "\output\\")
+            messagebox.showinfo(message="转换完成\n文件保存路径\n" + oe_path + "\output\\")
+        else:
+            messagebox.showinfo(message="未选择文件")
     except Exception as e:
         logging.error(f"转换失败{e}")
 
