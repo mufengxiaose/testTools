@@ -147,6 +147,7 @@ def createOECase(dcaseContent, output_path=None):
             sheet.cell(row=i + 2, column=oeCasePreconditionCol, value=oneCase[4])
         # 保存输出文件
         wb.save(outCaseDir)
+        messagebox.showinfo(message="转换完成\n文件保存路径\n" + oe_path + "\output\\" + out_xlse)
     except Exception as e:
         # 若出现异常，记录错误信息
         logging.error(f"创建 OE 测试用例文件时出错: {e}")
@@ -167,7 +168,6 @@ def select_file():
             dcaseContent = getDcaseData(file_path)
             # 创建 OE 测试用例文件
             createOECase(parseCase(dcaseContent))
-            messagebox.showinfo(message="转换完成\n文件保存路径\n" + oe_path + "\output\\")
         else:
             messagebox.showinfo(message="未选择文件")
     except Exception as e:
