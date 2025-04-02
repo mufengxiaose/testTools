@@ -5,7 +5,7 @@ STYTLE = {
         "fg": "black",
         # "font": ("Arial"),
         # "padx": 20,
-        # "pady": 10,
+        "pady": 5,
         # "relief": "raised",
         # "bd": 5
     },

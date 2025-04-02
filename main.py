@@ -13,11 +13,11 @@ from app.views.PanedWindowDemo import CustomFrame
 if __name__ == "__main__":
     root = Tk()
     root.title("test tools")
-    root.geometry("1000x600+70+10")
+    root.geometry("1200x600+70+10")
 
     tabStyle = ttk.Style()
     tabStyle.configure('TNotebook.Tab', foreground='blue')
-    tabNote = ttk.Notebook(root, width=1000, height=600)
+    tabNote = ttk.Notebook(root, width=1200, height=600)
 
     tab_info = [
         (DevicesApp, "手机常用功能"),

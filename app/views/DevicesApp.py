@@ -28,37 +28,37 @@ class DevicesApp(Frame):
         self.status_label.grid(row=0, column=0, sticky=W)
 
         self.status_text = Text(self.deviceFrame, width=40, height=1, font=20)
-        self.status_text.grid(row=0, column=1, sticky=W, columnspan=3)
+        self.status_text.grid(row=0, column=1, sticky=W, columnspan=2)
 
         self.refresh_status_bt = Button(self.deviceFrame, text="刷新状态", width=12,
                                            command=self.deviceConnect, **STYTLE["button"])
-        self.refresh_status_bt.grid(row=0, column=4)
+        self.refresh_status_bt.grid(row=0, column=3)
 
         # 获取手机日志
         self.log_label = Label(self.deviceFrame, text="日志存放路径：", **STYTLE["label"])
         self.log_label.grid(row=1, column=0, sticky=W)
 
         self.log_text = Text(self.deviceFrame, width=40, height=1, font=20)
-        self.log_text.grid(row=1, column=1, sticky=W, columnspan=3)
+        self.log_text.grid(row=1, column=1, sticky=W, columnspan=2)
 
         self.get_log_bt = Button(self.deviceFrame, width=12, text="获取手机日志",
                                     command=self.show_log_path, **STYTLE["button"])
-        self.get_log_bt.grid(row=1, column=4, sticky=W)
+        self.get_log_bt.grid(row=1, column=3, sticky=W)
 
         # Android屏幕共享
         self.scrcpy_bt = Button(self.deviceFrame, text="投屏", width=12, 
                                 command=self.callScrcpy, **STYTLE["button"])
-        self.scrcpy_bt.grid(row=4, column=0, sticky=W)
+        self.scrcpy_bt.grid(row=2, column=2, sticky=W)
 
         # Android截图
         self.screenshot_bt = Button(self.deviceFrame, text="手机截图", width=12,
                                        command=self.creatScreenshotToplevel, **STYTLE["button"])
-        self.screenshot_bt.grid(row=4, column=1, sticky=W)
+        self.screenshot_bt.grid(row=2, column=3, sticky=W)
 
         # 重启手机
         self.reset_devices_bt = Button(self.deviceFrame, text='重启手机', width=12,
                                           command=self.resetDevices, **STYTLE["button"])
-        self.reset_devices_bt.grid(row=4, column=2, sticky=W)
+        self.reset_devices_bt.grid(row=4, column=0, sticky=W)
 
         # 启动app直接获取设备链接状态
         self.deviceConnect()
@@ -222,16 +222,16 @@ class DevicesApp(Frame):
 
     # push文件功能
     def pushFileUI(self):
-        openFIleBt = Button(self.deviceFrame, text="文件", command=self.get_push_file,
-                            **STYTLE["button"])
-        openFIleBt.grid(row=3, column=0, sticky=W)
+        # openFIleBt = Button(self.deviceFrame, text="文件", command=self.get_push_file,
+        #                     **STYTLE["button"])
+        # openFIleBt.grid(row=3, column=0, sticky=W)
 
-        self.push_fileEntry = Entry(self.deviceFrame)
-        self.push_fileEntry.grid(row=3, column=1, columnspan=3, sticky=NSEW)
+        # self.push_fileEntry = Entry(self.deviceFrame)
+        # self.push_fileEntry.grid(row=3, column=1, columnspan=3, sticky=NSEW)
 
-        push_Bt = Button(self.deviceFrame, text="push>>sdcard", 
+        push_Bt = Button(self.deviceFrame, text="push文件，路径push>>sdcard", 
                          command=self.on_push_button_click, **STYTLE["button"])
-        push_Bt.grid(row=3, column=4, sticky=NSEW)
+        push_Bt.grid(row=2, column=1, sticky=NSEW)
 
     def adb_push(self, local_path, remote_path):
         # local_path = self.push_fileEntry.get()
@@ -263,8 +263,9 @@ class DevicesApp(Frame):
         thread.join(2)
     
     def on_push_button_click(self):
-        local_path = self.push_fileEntry.get()
-        print(f"local_path{local_path}")
+        # local_path = self.push_fileEntry.get()
+        local_path = askopenfilename()
+        print(f"local_path__{local_path}")
         remote_path = "/sdcard"
         if local_path:
             return self.run_adb_push_in_stread(local_path, remote_path)
@@ -279,16 +280,16 @@ class DevicesApp(Frame):
 
     def install_apk(self):
         '''安装apk'''
-        openFIleBt = Button(self.deviceFrame, text="导入安装包", 
-                            command=self.get_file_path, **STYTLE["button"])
-        openFIleBt.grid(row=2, column=0, sticky=W)
+        # openFIleBt = Button(self.deviceFrame, text="导入安装包", 
+        #                     command=self.get_file_path, **STYTLE["button"])
+        # openFIleBt.grid(row=2, column=0, sticky=W)
 
-        self.adb_install_fileEntry = Entry(self.deviceFrame)
-        self.adb_install_fileEntry.grid(row=2, column=1, columnspan=3, sticky=NSEW)
+        # self.adb_install_fileEntry = Entry(self.deviceFrame)
+        # self.adb_install_fileEntry.grid(row=2, column=1, columnspan=3, sticky=NSEW)
 
-        installBt = Button(self.deviceFrame, text="安装", 
+        installBt = Button(self.deviceFrame, text="安装.apk文件", 
                            command=self.on_adb_install_click, **STYTLE["button"])
-        installBt.grid(row=2, column=4, sticky=NSEW)
+        installBt.grid(row=2, column=0, sticky=NSEW)
 
     def get_file_path(self):
         '''获取.apk文件路径'''
@@ -298,28 +299,30 @@ class DevicesApp(Frame):
 
     def adb_install_package(self):
         '''安装package'''
-        local_path = self.adb_install_fileEntry.get()
+        # local_path = self.adb_install_fileEntry.get()
+        local_path = askopenfilename(filetypes=[("apk文件", "*.apk")])
         print(local_path)
         status = self.get_devices_status()
-        adb_install = ["adb", "install", " ", local_path]
-        # adb_install = "adb install" + " "
+        # adb_install = ["adb", "install", " ", local_path]
+        adb_install = "adb install" + " "
         if local_path:          
             if status == "List of devices attached":
                 return messagebox.showinfo(message="手机未链接\n请重新链接手机")
             elif " " in local_path:
                 messagebox.showinfo(message="apk路径有空格\n安装失败")
             elif ".apk" in str(local_path):              
-            #     messagebox.showinfo(message="安装中...")
-            #     if "Success" in CommonFunc().runCmd(adb_install + local_path):
-            #         messagebox.showinfo(message="安装成功")
-            #     else:
-            #         messagebox.showinfo(message="安装失败")
-                
-                stdout, stderr = CommonFunc().run_subprocess_popen(args=adb_install)
-                if "Success" in stdout:
+                messagebox.showinfo(message="安装中...")
+                if "Success" in CommonFunc().runCmd(adb_install + local_path):
                     messagebox.showinfo(message="安装成功")
                 else:
                     messagebox.showinfo(message="安装失败")
+                
+                # stdout, stderr = CommonFunc().run_subprocess_popen(args=adb_install)
+                # print(f"stdout:{stdout}" + "\n" + f"stderr:{stderr}")
+                # if "Success" in stdout:
+                #     messagebox.showinfo(message="安装成功")
+                # else:
+                #     messagebox.showinfo(message="安装失败")
             else:
                 messagebox.showinfo(message="确认文件是否正确")
         else:
@@ -334,7 +337,6 @@ class DevicesApp(Frame):
             print("Thread is still running")
         else:
             print("Thread has finished")
-    
+    # 安装apk点击
     def on_adb_install_click(self):
-        local_path = self.adb_install_fileEntry.get()
         self.run_adb_install_thread()
