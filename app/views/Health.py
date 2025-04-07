@@ -1,3 +1,4 @@
+import platform
 from tkinter import *
 from tkinter import messagebox
 from app.stytles.tk_stytles import STYTLE
@@ -33,6 +34,9 @@ class Health(Frame):
         self.heightEntry.grid(row=1, column=1)
         self.countBt.grid(row=2, column=0)
 
+        os_info_button = Button(self.frame, text="系统", command=self.get_os_info)
+        os_info_button.grid(row=3, column=0)
+
 
     def BMICount(self):
         '''bmi 计算
@@ -57,3 +61,6 @@ class Health(Frame):
                 messagebox.showinfo(message="肥胖")
             BMI = "%.2f" % BMI
             self.count.set(BMI)
+    
+    def get_os_info(self):
+        print(f"系统{platform.system()}")

@@ -3,6 +3,7 @@ import time
 import datetime
 import threading
 import subprocess
+import socket
 from tkinter.filedialog import *
 from tkinter import *
 from tkinter import messagebox
@@ -58,16 +59,15 @@ class DevicesApp(Frame):
         # 重启手机
         self.reset_devices_bt = Button(self.deviceFrame, text='重启手机', width=12,
                                           command=self.resetDevices, **STYTLE["button"])
-        self.reset_devices_bt.grid(row=4, column=0, sticky=W)
-
+        self.reset_devices_bt.grid(row=3, column=0, sticky=W)
         # 启动app直接获取设备链接状态
         self.deviceConnect()
-
         # 安装apk
         self.install_apk()
-
         # push文件
         self.pushFileUI()
+        # 获取ip
+        self.get_default_ip_ui()
     #手机状态部分
     def callScrcpy(self):
         '''使用scrcpy功能'''
@@ -340,3 +340,24 @@ class DevicesApp(Frame):
     # 安装apk点击
     def on_adb_install_click(self):
         self.run_adb_install_thread()
+
+    def get_default_ip_ui(self):
+        get_ip_button = Button(self.deviceFrame, text="ip", command=self.get_default_ip, **STYTLE['button'])
+        get_ip_button.grid(row=3, column=1)
+
+    def get_default_ip(self):
+        try:
+            # 创建一个 UDP 套接字
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            # 连接到一个外部地址
+            s.connect(("8.8.8.8", 80))
+            # 获取本地 IP 地址
+            ip = s.getsockname()[0]
+            s.close()
+            print(ip)
+            messagebox.showinfo(message=f"ip地址:\n{ip}")
+        except Exception as e:
+            print(f"获取 IP 地址时出错: {e}")
+            return None
+
+
