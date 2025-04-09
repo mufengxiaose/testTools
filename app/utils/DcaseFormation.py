@@ -110,6 +110,7 @@ def createOECase(dcaseContent, output_path=None):
     try:
         # 拼接输出文件的路径
         out_xlsx_path = oe_path + "\\" + "output"
+        # out_xlsx_path = "/output"
         if not os.path.exists(out_xlsx_path):
             os.makedirs(out_xlsx_path)
         outCaseDir = os.path.join(out_xlsx_path, out_xlse)

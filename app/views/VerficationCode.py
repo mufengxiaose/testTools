@@ -127,7 +127,7 @@ class VerficationCode(Frame):
             appid = 130001
         return appid, phone_num
 
-    def get_curl_code(self, appid, phone_num):
+    def get_curl_code(self, appid, phone_num, timeout=3):
         # 定义请求的URL
         url = 'http://10.85.172.18:8000/passport/user/v5/querySmsCode'
         # 要发送的数据
@@ -144,12 +144,15 @@ class VerficationCode(Frame):
         }
         try:
             # 发送 POST 请求
-            response = requests.post(url, data=encoded_data, headers=headers)
+            response = requests.post(url, data=encoded_data, headers=headers, timeout=timeout)
             # 检查响应状态码，如果不是200，抛出异常
             response.raise_for_status()
             # 将响应内容解析为JSON格式
             result = response.json()
             return result
+        except requests.Timeout:
+            messagebox.showinfo(message="请内网操作")
+            raise ValueError(f"请求超时，超时时间{timeout}s")
         except requests.RequestException as e:
             print(f"请求发生异常: {e}")
             # 这里应该是None，原代码有误
