@@ -4,8 +4,10 @@ import shutil
 import sys
 import logging
 import datetime
+import platform
 import tkinter as tk
 from tkinter import filedialog, messagebox
+from app.utils.common import CommonFunc
 
 
 # 获取当前脚本所在目录的父目录路径
@@ -108,12 +110,18 @@ def createOECase(dcaseContent, output_path=None):
     ctime = create_format_time()
     out_xlse = ctime + ".xlsx"
     try:
+        # system = platform.system()
         # 拼接输出文件的路径
-        out_xlsx_path = oe_path + "\\" + "output"
-        # out_xlsx_path = "/output"
-        if not os.path.exists(out_xlsx_path):
-            os.makedirs(out_xlsx_path)
-        outCaseDir = os.path.join(out_xlsx_path, out_xlse)
+        # if system == "Darwin":
+        #     out_xlsx_path = "/CaseOutput"
+        #     # out_xlsx_path = "/output"
+        # else:
+        #     # 可以根据其他系统做相应的路径设置
+        #     out_xlsx_path = "./CaseOutput"
+        out_xlsx_path = "/CaseOutput"
+        CommonFunc().creatFile(file_path=out_xlsx_path)
+        case_out_xlsx_path = os.getcwd() + out_xlsx_path
+        outCaseDir = os.path.join(case_out_xlsx_path, out_xlse)
         # 复制模板文件到输出路径
         shutil.copyfile(OE_EXCEL_TEMPLATE_DIR, outCaseDir)
         # 加载输出文件
@@ -148,7 +156,7 @@ def createOECase(dcaseContent, output_path=None):
             sheet.cell(row=i + 2, column=oeCasePreconditionCol, value=oneCase[4])
         # 保存输出文件
         wb.save(outCaseDir)
-        messagebox.showinfo(message="转换完成\n文件保存路径\n" + oe_path + "\output\\" + out_xlse)
+        messagebox.showinfo(message="转换完成\n文件保存路径\n" + case_out_xlsx_path + out_xlse)
     except Exception as e:
         # 若出现异常，记录错误信息
         logging.error(f"创建 OE 测试用例文件时出错: {e}")

@@ -251,7 +251,7 @@ class VerficationCode(Frame):
         # 获取手机号输入框中的内容
         phone_num = self.phone_entry.get()
         # 获取多测试号输入框中的手机号列表
-        nums = self.get_nums_text_phone()
+        nums = self.get_nums_text_phone() or self.phone_entry.get()
         for phone in nums:
             # 调用get_fixed_verification_code_curl方法发送请求
             result = self.get_fixed_verification_code_curl(testcell_type=5, phone=phone)
@@ -302,7 +302,7 @@ class VerficationCode(Frame):
     def nums_extension_bt_click(self):
         '''多测试号延期'''
         # 获取多测试号输入框中的手机号列表
-        nums = self.get_nums_text_phone()
+        nums = self.get_nums_text_phone() or self.phone_entry.get()
         for phone in nums:
             print(phone)
             # 调用get_fixed_verification_code_curl方法发送请求
@@ -316,30 +316,6 @@ class VerficationCode(Frame):
         '''打开file'''
         # 打开文件选择对话框，返回选择的文件路径
         return askopenfilename()
-
-    def insert_file_path(self):
-        '''entry插入路径'''
-        # 清空文件路径输入框中的内容
-        self.case_file_entry.delete(0, END)
-        # 将选择的文件路径插入到文件路径输入框中
-        self.case_file_entry.insert(0, self.get_file_path())
-
-    def case_conversion_bt_click(self):
-        # 转换按钮点击
-        # 获取文件路径输入框中的内容
-        file_path = self.case_file_entry.get()
-        try:
-            if len(file_path) < 2:
-                # 如果文件路径长度小于2，记录错误日志
-                logging.error("请提供 Dcase 测试用例 Excel 文件的路径作为命令行参数。")
-            else:
-                # 调用getDcaseData函数获取测试用例数据
-                dcaseContent = getDcaseData(file_path)
-                # 调用parseCase函数解析测试用例数据，再调用createOECase函数创建测试用例
-                createOECase(parseCase(dcaseContent))
-        except Exception as e:
-            # 如果发生异常，记录错误日志
-            logging.error(f"主程序运行时出错: {e}")
 
     def clear_verfication_code_text_default_text(self, event):
         # 获取多测试号输入框中的内容，并去除首尾空格
