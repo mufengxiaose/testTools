@@ -1,14 +1,14 @@
 import time
 import requests
-import datetime
+import threading
+from pathlib import Path
 from tkinter.filedialog import *
 from tkinter import *
 from tkinter import ttk
-from tkinter import messagebox
 from urllib.parse import urlencode
 from app.utils.DcaseFormation import *
 from app.stytles.tk_stytles import STYTLE
-
+from app.utils.MsKF import mkdir_kf_pro_file, run_commands_in_dir, kf_branch_parent_file
 
 
 class VerficationCode(Frame):
@@ -24,6 +24,7 @@ class VerficationCode(Frame):
         self.ui()
         # dcase转换
         self.dcase_formation_ui()
+        self.ms_kf_ui()
 
     def ui(self):
         '''ui布局'''
@@ -69,9 +70,9 @@ class VerficationCode(Frame):
         self.fixed_verification_code_entry.grid(row=2, column=3, sticky=NSEW)
         # 创建固定验证码按钮，并绑定点击事件处理函数
         self.fixed_verification_code_bt = Button(self.frame, text="固定",
-                                                 command=self.on_fixed_verification_code_bt_click, **STYTLE["button"])
+                                                 command=self.on_fixed_verification_code_bt_click_thread, **STYTLE["button"])
         # 将固定验证码按钮放置到网格布局中
-        self.fixed_verification_code_bt.grid(row=2, column=4, sticky=NSEW)
+        self.fixed_verification_code_bt.grid(row=1, column=5)
 
         # 测试号延期
         # 创建测试号延期按钮，并绑定点击事件处理函数
@@ -105,11 +106,9 @@ class VerficationCode(Frame):
         self.nums_text.bind("<Button-1>", self.clear_nums_text_default_text)
         self.nums_text.bind("<FocusOut>", self.nums_text_on_focus_out)
         # 创建一键续期按钮，并绑定点击事件处理函数
-        nums_extension_bt = Button(self.frame, text="一键续期", command=self.nums_extension_bt_click, **STYTLE["button"])
+        nums_extension_bt = Button(self.frame, text="一键续期", command=self.nums_extension_bt_click_thread, **STYTLE["button"])
         # 将一键续期按钮放置到网格布局中
         nums_extension_bt.grid(row=1, column=4)
-
-
     def get_phone_appid(self):
         '''获取验证码'''
         # 获取下拉选择框中选中的appid选项
@@ -241,8 +240,10 @@ class VerficationCode(Frame):
             return response.json()
         except requests.RequestException as e:
             # 如果请求出错，弹出消息框提示cookies可能过期
-            messagebox.showinfo(message="cookies 可能过期")
-            print(f"请求失败：{e}")
+            # messagebox.showinfo(message="cookies 可能过期")
+            pass
+            # print(f"请求失败：{e}")
+
 
     def on_fixed_verification_code_bt_click(self):
         '''
@@ -267,6 +268,9 @@ class VerficationCode(Frame):
             # 如果请求结果为空，弹出消息框提示请求出错
             messagebox.showinfo(message="请求出错")
 
+    def on_fixed_verification_code_bt_click_thread(self):
+        self.thread_func(target=self.on_fixed_verification_code_bt_click)
+
     def on_number_extension_bt_click(self):
         '''
         单个测试号延期
@@ -284,6 +288,9 @@ class VerficationCode(Frame):
         else:
             # 如果请求结果为空，弹出消息框提示请求出错
             messagebox.showinfo(message="请求出错")
+
+    def on_number_extension_bt_click_thread(self):
+        self.thread_func(target=self.on_number_extension_bt_click)
 
     def clear_nums_text_default_text(self, event):
         # 获取多测试号输入框中的内容，并去除首尾空格
@@ -311,6 +318,9 @@ class VerficationCode(Frame):
             time.sleep(1)
         # 所有请求完成后，弹出消息框提示完成
         messagebox.showinfo(message="完成")
+
+    def nums_extension_bt_click_thread(self):
+        self.thread_func(target=self.nums_extension_bt_click)
 
     def get_file_path(self):
         '''打开file'''
@@ -346,4 +356,41 @@ class VerficationCode(Frame):
         select_button = Button(self.frame, text="选择 Dcase 测试用例文件", command=select_file, **STYTLE['button'])
         select_button.grid(row=5, column=0)
 
+    def ms_kf_ui(self):
+        # 分割线
+        separator = ttk.Separator(self.frame, style="BlackSeparator.TSeparator")
+        separator.grid(row=6, column=0, sticky="ew", pady=10, columnspan=8)
+        #创建label、entey、button
+        kf_branch_label = Label(self.frame, text="分支名称", **STYTLE["label"])
+        kf_branch_label.grid(row=7, column=0)
+        self.kf_branch_input_entry = Entry(self.frame)
+        self.kf_branch_input_entry.grid(row=7, column=1)
+        kf_branch_bt = Button(self.frame, text="点击开始", command=self.ms_kf_thread,
+                              **STYTLE['button'])
+        kf_branch_bt.grid(row=7, column=2)
 
+    def ms_kf_branch_func(self):
+        branch = self.kf_branch_input_entry.get()
+        kf_branch_parent_file()
+        mkdir_kf_pro_file(branch=branch)
+        target_dir = Path.home() / "code" / branch
+        commands_to_run = [
+            ["echo", "开始执行命令"],
+            ["ms", "_kf", "%s" % (branch)]
+        ]
+        success = run_commands_in_dir(target_dir, commands_to_run)
+        if success:
+            print("所有命令执行完毕")
+        else:
+            print("命令执行过程中出错")
+
+    def thread_func(self, target=None):
+        thread_ = threading.Thread(target=target)
+        thread_.start()
+        if thread_.is_alive():
+            print("线程开始")
+        else:
+            print("线程结束")
+
+    def ms_kf_thread(self):
+        self.thread_func(target=self.ms_kf_branch_func)

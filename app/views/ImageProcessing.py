@@ -35,6 +35,9 @@ class ImageProcessing(Frame):
         self.compressBt.grid(row=2, column=2, sticky=W)
         self.compressfactorCombobox.grid(row=2, column=1, sticky=W)
 
+        #pdf_word
+        self.PdfToWord()
+
     def compressFunc(self):
         '''img compress'''
         img = self.imgEntry.get()
@@ -59,4 +62,9 @@ class ImageProcessing(Frame):
                                          ('jpeg', '*jpeg'), ('gif', '*.gif')])
         self.imgEntry.delete(0, END)
         self.imgEntry.insert(0, img)
+
+
+    def PdfToWord(self):
+        button = Button(self.frame, text="pdf转word")
+        button.grid(row=3, column=0)
         
