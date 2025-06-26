@@ -6,6 +6,7 @@ STYTLE = {
         # "font": ("Arial"),
         # "padx": 20,
         "pady": 5,
+        "width": 15
         # "relief": "raised",
         # "bd": 5
     },

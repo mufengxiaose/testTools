@@ -5,11 +5,11 @@ from pathlib import Path
 from tkinter.filedialog import *
 from tkinter import *
 from tkinter import ttk
-from urllib.parse import urlencode
 from app.utils.DcaseFormation import *
 from app.stytles.tk_stytles import STYTLE
 from app.utils.MsKF import mkdir_kf_pro_file, run_commands_in_dir, kf_branch_parent_file
-
+from app.utils.StarmapCurl import curl_starmap_url_extension, curl_starmap_url_fixed
+from app.utils.VerficationCodeFunc import get_curl_code
 
 class VerficationCode(Frame):
     '''验证码获取'''
@@ -36,30 +36,30 @@ class VerficationCode(Frame):
         # 将手机号标签放置到网格布局中
         phone_label.grid(row=0, column=0, sticky=NSEW)
         # 创建手机号输入框
-        self.phone_entry = Entry(self.frame, width=20)
+        self.phone_entry = Entry(self.frame, width=38)
         # 将手机号输入框放置到网格布局中
         self.phone_entry.grid(row=0, column=1)
         # 创建appid标签
         appid_label = Label(self.frame, text="appid，仅线上", **STYTLE["label"])
         # 将appid标签放置到网格布局中
-        appid_label.grid(row=0, column=2, sticky=NSEW)
+        appid_label.grid(row=1, column=0, sticky=NSEW)
         # 创建下拉选择框，用于选择appid
         self.combo = ttk.Combobox(self.frame, values=option)
         # 未设置默认选中项，可根据需求取消注释设置默认值
         # self.combo.set(option[0])
         # 将下拉选择框放置到网格布局中
-        self.combo.grid(row=0, column=3, sticky=NSEW)
+        self.combo.grid(row=1, column=1, sticky=NSEW)
         # 创建获取验证码按钮，并绑定点击事件处理函数
-        self.button_get = Button(self.frame, text="获取",
+        self.button_get = Button(self.frame, text="获取验证码",
                                  command=self.on_get_code_bt_click, **STYTLE["button"])
         # 将获取验证码按钮放置到网格布局中
-        self.button_get.grid(row=0, column=4, sticky=NSEW)  
+        self.button_get.grid(row=0, column=2, sticky=NSEW)
 
         # 验证码固定
         # 创建输入验证码标签
         self.fixed_verification_code_label = Label(self.frame, text="固定验证码输入", **STYTLE["label"])
         # 将输入验证码标签放置到网格布局中
-        self.fixed_verification_code_label.grid(row=2, column=2, sticky=NSEW)
+        self.fixed_verification_code_label.grid(row=3, column=0, sticky=NSEW)
         # 创建输入验证码输入框
         self.fixed_verification_code_entry = Entry(self.frame, width=20, foreground="gray")
         self.fixed_verification_code_entry_txt = "非连续性6位数字"
@@ -67,28 +67,28 @@ class VerficationCode(Frame):
         self.fixed_verification_code_entry.bind("<Button-1>", self.clear_verfication_code_text_default_text)
         self.fixed_verification_code_entry.bind("<FocusOut>", self.fixed_verification_code_entry_on_focus_out)
         # 将输入验证码输入框放置到网格布局中
-        self.fixed_verification_code_entry.grid(row=2, column=3, sticky=NSEW)
+        self.fixed_verification_code_entry.grid(row=3, column=1, sticky=NSEW)
         # 创建固定验证码按钮，并绑定点击事件处理函数
-        self.fixed_verification_code_bt = Button(self.frame, text="固定",
+        self.fixed_verification_code_bt = Button(self.frame, text="固定验证码",
                                                  command=self.on_fixed_verification_code_bt_click_thread, **STYTLE["button"])
         # 将固定验证码按钮放置到网格布局中
-        self.fixed_verification_code_bt.grid(row=1, column=5)
-
-        # 测试号延期
-        # 创建测试号延期按钮，并绑定点击事件处理函数
-        number_extension_bt = Button(self.frame, text="测试号延期", command=self.on_number_extension_bt_click, **STYTLE["button"])
-        # 将测试号延期按钮放置到网格布局中
-        number_extension_bt.grid(row=0, column=5)
+        self.fixed_verification_code_bt.grid(row=1, column=3)
 
         # cookies
         # 创建cookies标签
         cookies_label = Label(self.frame, text="cookies", **STYTLE["label"])
         # 将cookies标签放置到网格布局中
-        cookies_label.grid(row=3, column=2)
+        cookies_label.grid(row=5, column=0)
         # 创建cookies文本输入框
         self.cookies_text = Text(self.frame, width=50, height=5)
         # 将cookies文本输入框放置到网格布局中
-        self.cookies_text.grid(row=3, column=3)
+        self.cookies_text.grid(row=5, column=1)
+        # 创建ticket标签
+        ticket_label = Label(self.frame, text="ticket", **STYTLE['label'])
+        ticket_label.grid(row=4, column=0)
+        # ticket文本输入框
+        self.ticket_text = Text(self.frame, width=50, height=5)
+        self.ticket_text.grid(row=4, column=1)
 
         # 一键续期
         # 定义默认提示文本
@@ -96,19 +96,20 @@ class VerficationCode(Frame):
         # 创建多测试号延期标签
         nums_label = Label(self.frame, text="输入要延期测试账号", **STYTLE["label"])
         # 将多测试号延期标签放置到网格布局中
-        nums_label.grid(row=1, column=2)
+        nums_label.grid(row=2, column=0)
         # 创建多测试号输入框，设置初始文本和颜色
         self.nums_text = Text(self.frame, width=50, height=5, foreground="gray")
         self.nums_text.insert(1.0, self.default_text)
         # 将多测试号输入框放置到网格布局中
-        self.nums_text.grid(row=1, column=3)
+        self.nums_text.grid(row=2, column=1)
         # 绑定鼠标点击事件，用于清除默认提示文本
         self.nums_text.bind("<Button-1>", self.clear_nums_text_default_text)
         self.nums_text.bind("<FocusOut>", self.nums_text_on_focus_out)
         # 创建一键续期按钮，并绑定点击事件处理函数
         nums_extension_bt = Button(self.frame, text="一键续期", command=self.nums_extension_bt_click_thread, **STYTLE["button"])
         # 将一键续期按钮放置到网格布局中
-        nums_extension_bt.grid(row=1, column=4)
+        nums_extension_bt.grid(row=1, column=2)
+
     def get_phone_appid(self):
         '''获取验证码'''
         # 获取下拉选择框中选中的appid选项
@@ -126,42 +127,12 @@ class VerficationCode(Frame):
             appid = 130001
         return appid, phone_num
 
-    def get_curl_code(self, appid, phone_num, timeout=3):
-        # 定义请求的URL
-        url = 'http://10.85.172.18:8000/passport/user/v5/querySmsCode'
-        # 要发送的数据
-        data = {
-            'q': '{"country_calling_code":"+86","appid":%s,"cell":"%s","operator":"passport-pre-autotest"}' % (appid, phone_num)
-        }
-        print(data)
-        # 对数据进行 URL 编码
-        encoded_data = urlencode(data)
-
-        # 设置请求头，这里根据 curl 命令的行为推测，实际可能需要根据服务器要求调整
-        headers = {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-        try:
-            # 发送 POST 请求
-            response = requests.post(url, data=encoded_data, headers=headers, timeout=timeout)
-            # 检查响应状态码，如果不是200，抛出异常
-            response.raise_for_status()
-            # 将响应内容解析为JSON格式
-            result = response.json()
-            return result
-        except requests.Timeout:
-            messagebox.showinfo(message="请内网操作")
-            raise ValueError(f"请求超时，超时时间{timeout}s")
-        except requests.RequestException as e:
-            print(f"请求发生异常: {e}")
-            # 这里应该是None，原代码有误
-            return None
-
     def on_get_code_bt_click(self):
         # 获取appid和手机号
         appid, phone_num = self.get_phone_appid()
+        print(type(phone_num))
         # 调用get_curl_code方法获取验证码结果
-        result = self.get_curl_code(appid=appid, phone_num=phone_num)
+        result = get_curl_code(appid=appid, phone_num=phone_num)
         if result:
             # 获取结果中的错误信息
             error = result.get('error')
@@ -190,107 +161,32 @@ class VerficationCode(Frame):
         # 将时间转换为时间戳
         return int(expired_time.timestamp())
 
-    def get_fixed_verification_code_curl(self, testcell_type, phone):
-        """
-        发送创建测试单元的请求
-        :return: 请求响应结果
-        """
-        # 获取过期时间戳
-        expired_timestamp = self.generate_expired_timestamp()
-        testcell_type = testcell_type
-        # 定义请求的URL
-        url = 'https://starmap.xiaojukeji.com/mp/console/v1/testcell/create'
-        # 获取cookies文本输入框中的内容，并去除末尾的换行符
-        cookies = str(self.cookies_text.get("1.0", END).rstrip())
-        # print(cookies)
-        # 设置请求头
-        headers = {
-            'Accept': 'application/json',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Cookie': '%s' % cookies,
-            'Origin': 'https://starmap.xiaojukeji.com',
-            'Referer': 'https://starmap.xiaojukeji.com/workflow/',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-origin',
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1'
-        }
-        # 要发送的数据
-        data = {
-            '0': '0',
-            'env': '1',
-            'cluster': 'hne',
-            'department': '出行技术',
-            'testcell_type': '%s' % testcell_type,
-            'other': '测试',
-            'app_info': '{"country_calling_code":"+86","role":1,"expired_time":%s,"origin_id":"1","cell":["%s"],"static_code":"556677"}' % (
-                expired_timestamp, phone)
-        }
-        # 对数据进行 URL 编码
-        encoded_data = urlencode(data)
-
-        try:
-            # 发送 POST 请求
-            response = requests.post(url, headers=headers, data=encoded_data)
-            # 检查响应状态码，如果不是200，抛出异常
-            response.raise_for_status()
-            # 将响应内容解析为JSON格式
-            return response.json()
-        except requests.RequestException as e:
-            # 如果请求出错，弹出消息框提示cookies可能过期
-            # messagebox.showinfo(message="cookies 可能过期")
-            pass
-            # print(f"请求失败：{e}")
-
-
     def on_fixed_verification_code_bt_click(self):
         '''
         固定验证码
         '''
-        # 获取手机号输入框中的内容
-        phone_num = self.phone_entry.get()
+        # # 获取手机号输入框中的内容
+        # phone_num = self.phone_entry.get()
         # 获取多测试号输入框中的手机号列表
         nums = self.get_nums_text_phone() or self.phone_entry.get()
-        for phone in nums:
-            # 调用get_fixed_verification_code_curl方法发送请求
-            result = self.get_fixed_verification_code_curl(testcell_type=5, phone=phone)
+        ticket = self.ticket_text.get("1.0", END)
+        cookies = self.cookies_text.get("1.0", END)
+        print("cookies", cookies)
+        clear_cookies = cookies.replace("\n", "").replace("\r", "")
+        print("clear_cookies", clear_cookies)
+        cookies_dict = {item.split('=')[0]: item.split('=')[1] for item in clear_cookies.split('; ')}
+        print("cookies_dict", cookies_dict)
+        code = self.fixed_verification_code_entry.get()
+        for num in nums:
+            # 调用curl_starmap_url_fixed方法发送请求
+            result = curl_starmap_url_fixed(ticket=ticket, cookies=cookies_dict, code=code, numbers=num)
             print(result)
             # 每次请求间隔1秒
             time.sleep(1)
-        if result:
-            # 获取结果中的错误信息
-            errmsg = result.get('errmsg')
-            # 弹出消息框显示错误信息
-            messagebox.showinfo(message=f'{errmsg}')
-        else:
-            # 如果请求结果为空，弹出消息框提示请求出错
-            messagebox.showinfo(message="请求出错")
+
 
     def on_fixed_verification_code_bt_click_thread(self):
         self.thread_func(target=self.on_fixed_verification_code_bt_click)
-
-    def on_number_extension_bt_click(self):
-        '''
-        单个测试号延期
-        testcell_type:3 延期
-        '''
-        # 获取手机号输入框中的内容
-        phone = self.phone_entry.get()
-        # 调用get_fixed_verification_code_curl方法发送请求
-        result = self.get_fixed_verification_code_curl(testcell_type=3, phone=phone)
-        if result:
-            # 获取结果中的错误信息
-            errmsg = result.get('errmsg')
-            # 弹出消息框显示错误信息
-            messagebox.showinfo(message=f'{errmsg}')
-        else:
-            # 如果请求结果为空，弹出消息框提示请求出错
-            messagebox.showinfo(message="请求出错")
-
-    def on_number_extension_bt_click_thread(self):
-        self.thread_func(target=self.on_number_extension_bt_click)
 
     def clear_nums_text_default_text(self, event):
         # 获取多测试号输入框中的内容，并去除首尾空格
@@ -310,14 +206,16 @@ class VerficationCode(Frame):
         '''多测试号延期'''
         # 获取多测试号输入框中的手机号列表
         nums = self.get_nums_text_phone() or self.phone_entry.get()
-        for phone in nums:
-            print(phone)
-            # 调用get_fixed_verification_code_curl方法发送请求
-            self.get_fixed_verification_code_curl(testcell_type=3, phone=phone)
+        ticket = str(self.ticket_text.get("1.0", END).rstrip())
+        cookies = str(self.cookies_text.get("1.0", END).rstrip())
+        for num in nums:
+            print(num)
+            print(type(num))
+            # 调用curl_starmap_url_extension方法发送请求
+            curl_starmap_url_extension(ticket=ticket, cookies=cookies, numbers=num)
             # 每次请求间隔1秒
             time.sleep(1)
-        # 所有请求完成后，弹出消息框提示完成
-        messagebox.showinfo(message="完成")
+
 
     def nums_extension_bt_click_thread(self):
         self.thread_func(target=self.nums_extension_bt_click)
@@ -351,23 +249,23 @@ class VerficationCode(Frame):
 
     def dcase_formation_ui(self):
         separator = ttk.Separator(self.frame, style="BlackSeparator.TSeparator")
-        separator.grid(row=4, column=0, sticky="ew", pady=10, columnspan=8)
+        separator.grid(row=6, column=0, sticky="ew", pady=10, columnspan=8)
         # 创建选择文件按钮，点击时调用 select_file 函数
         select_button = Button(self.frame, text="选择 Dcase 测试用例文件", command=select_file, **STYTLE['button'])
-        select_button.grid(row=5, column=0)
+        select_button.grid(row=7, column=0)
 
     def ms_kf_ui(self):
         # 分割线
         separator = ttk.Separator(self.frame, style="BlackSeparator.TSeparator")
-        separator.grid(row=6, column=0, sticky="ew", pady=10, columnspan=8)
+        separator.grid(row=8, column=0, sticky="ew", pady=10, columnspan=8)
         #创建label、entey、button
         kf_branch_label = Label(self.frame, text="分支名称", **STYTLE["label"])
-        kf_branch_label.grid(row=7, column=0)
-        self.kf_branch_input_entry = Entry(self.frame)
-        self.kf_branch_input_entry.grid(row=7, column=1)
+        kf_branch_label.grid(row=9, column=0)
+        self.kf_branch_input_entry = Entry(self.frame, width=38)
+        self.kf_branch_input_entry.grid(row=9, column=1)
         kf_branch_bt = Button(self.frame, text="点击开始", command=self.ms_kf_thread,
                               **STYTLE['button'])
-        kf_branch_bt.grid(row=7, column=2)
+        kf_branch_bt.grid(row=9, column=2)
 
     def ms_kf_branch_func(self):
         branch = self.kf_branch_input_entry.get()
@@ -394,3 +292,4 @@ class VerficationCode(Frame):
 
     def ms_kf_thread(self):
         self.thread_func(target=self.ms_kf_branch_func)
+

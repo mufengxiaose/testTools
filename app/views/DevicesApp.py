@@ -31,7 +31,7 @@ class DevicesApp(Frame):
         self.status_text = Text(self.deviceFrame, width=40, height=1, font=20)
         self.status_text.grid(row=0, column=1, sticky=W, columnspan=2)
 
-        self.refresh_status_bt = Button(self.deviceFrame, text="刷新状态", width=12,
+        self.refresh_status_bt = Button(self.deviceFrame, text="刷新状态",
                                            command=self.deviceConnect, **STYTLE["button"])
         self.refresh_status_bt.grid(row=0, column=3)
 
@@ -42,22 +42,22 @@ class DevicesApp(Frame):
         self.log_text = Text(self.deviceFrame, width=40, height=1, font=20)
         self.log_text.grid(row=1, column=1, sticky=W, columnspan=2)
 
-        self.get_log_bt = Button(self.deviceFrame, width=12, text="获取手机日志",
+        self.get_log_bt = Button(self.deviceFrame, text="获取手机日志",
                                     command=self.show_log_path, **STYTLE["button"])
         self.get_log_bt.grid(row=1, column=3, sticky=W)
 
         # Android屏幕共享
-        self.scrcpy_bt = Button(self.deviceFrame, text="投屏", width=12, 
+        self.scrcpy_bt = Button(self.deviceFrame, text="投屏",
                                 command=self.callScrcpy, **STYTLE["button"])
         self.scrcpy_bt.grid(row=2, column=2, sticky=W)
 
         # Android截图
-        self.screenshot_bt = Button(self.deviceFrame, text="手机截图", width=12,
+        self.screenshot_bt = Button(self.deviceFrame, text="手机截图",
                                        command=self.creatScreenshotToplevel, **STYTLE["button"])
         self.screenshot_bt.grid(row=2, column=3, sticky=W)
 
         # 重启手机
-        self.reset_devices_bt = Button(self.deviceFrame, text='重启手机', width=12,
+        self.reset_devices_bt = Button(self.deviceFrame, text='重启手机',
                                           command=self.resetDevices, **STYTLE["button"])
         self.reset_devices_bt.grid(row=3, column=0, sticky=W)
         # 启动app直接获取设备链接状态
@@ -229,7 +229,7 @@ class DevicesApp(Frame):
         # self.push_fileEntry = Entry(self.deviceFrame)
         # self.push_fileEntry.grid(row=3, column=1, columnspan=3, sticky=NSEW)
 
-        push_Bt = Button(self.deviceFrame, text="push文件，路径push>>sdcard", 
+        push_Bt = Button(self.deviceFrame, text="push文件到手机sdcard",
                          command=self.on_push_button_click, **STYTLE["button"])
         push_Bt.grid(row=2, column=1, sticky=NSEW)
 

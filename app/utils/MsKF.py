@@ -9,6 +9,7 @@
 """
 import os
 import subprocess
+from tkinter import messagebox
 from pathlib import Path
 
 def kf_branch_parent_file():
@@ -56,8 +57,9 @@ def run_commands_in_dir(directory, commands):
                     text=True
                 )
                 if result.stdout:
-                    print("标准输出:")
+                    # print("标准输出:")
                     print(result.stdout)
+                    messagebox.showinfo(message=result.stdout)
             except subprocess.CalledProcessError as e:
                 print(f"命令执行失败: {e.returncode}")
                 if e.stdout:
