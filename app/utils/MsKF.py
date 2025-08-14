@@ -39,12 +39,10 @@ def run_commands_in_dir(directory, commands):
     """在指定目录下按顺序执行多个命令"""
     original_dir = os.getcwd()  # 保存当前目录
     success = True
-
     try:
         # 切换到目标目录
         os.chdir(directory)
         print(f"当前目录: {os.getcwd()}")
-
         # 执行命令
         for command in commands:
             print(f"执行命令: {' '.join(command)}")

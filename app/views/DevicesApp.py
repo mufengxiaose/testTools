@@ -71,10 +71,11 @@ class DevicesApp(Frame):
     #手机状态部分
     def callScrcpy(self):
         '''使用scrcpy功能'''
-        status = CommonFunc().runCmd("adb devices").strip()
+        devices_status = CommonFunc().runCmd("adb devices").strip()
         try:
-            if status == "List of devices attached":
-                return messagebox.showinfo(message="设备链接失败\n请重新链接手机")
+            if "device" not in devices_status:
+                messagebox.showinfo(message="设备链接失败\n请重新链接手机")
+                return
             if CommonFunc().getSystemName() == 'Window':
                 pass
             else:
@@ -84,8 +85,8 @@ class DevicesApp(Frame):
 
     def GetDeviceList(self):
         '''获取设备状态'''
-        status = CommonFunc().runCmd("adb devices").strip()
-        if status == "List of devices attached":
+        devices_status = CommonFunc().runCmd("adb devices").strip()
+        if "device" not in devices_status:
             status = "设备链接失败"
         elif "offline" in status:
             subprocess.Popen("adb kill-server")
@@ -103,18 +104,55 @@ class DevicesApp(Frame):
     #log 部分
     def get_log(self):
         '''获取设备日志'''
-        status = self.get_devices_status()
+        LOG_DURATION = 8
+        devices_status = self.get_devices_status()
         try:
-            if status == "List of devices attached":
+            # if status == "List of devices attached":
+            if "device" not in devices_status:
                 messagebox.showinfo(message="手机未链接\n请重新链接手机")
-            else:
-                log_file_name = self.create_log_file_name()
-                adb_logcat_text = "adb logcat -v threadtime > " + log_file_name
-                adb_logcat = subprocess.Popen(args=adb_logcat_text, shell=True, stdin=subprocess.PIPE, stdout=None)
-                time.sleep(8)
-                os.system("taskkill /t /f /pid {}".format(adb_logcat.pid))
+                return
+            
+            log_file_name = self.create_log_file_name()
+            cmd = ['adb ', 'logcat ', "-v ", "threadtime ", "> ", log_file_name]
+            adb_logcat = subprocess.Popen(
+                ''.join(cmd),
+                shell=True, 
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            print(adb_logcat)
+            time.sleep(LOG_DURATION)
+            if adb_logcat.poll() is None:  # 进程仍在运行
+                # Windows使用taskkill，Linux/macOS使用pkill
+                if os.name == "nt":
+                    # 杀死进程组（包括子进程）
+                    subprocess.run(
+                        ["taskkill", "/F", "/T", "/PID", str(adb_logcat.pid)],
+                        check=True
+                    )
+                else:
+                    # 非Windows系统使用pkill
+                    subprocess.run(
+                        ["pkill", "-P", str(adb_logcat.pid)],  # 杀死父进程的子进程
+                        check=True
+                    )
+                    adb_logcat.terminate()
+                    # 6. 验证日志文件生成
+
+
+        except subprocess.CalledProcessError as e:
+            err_msg = f"进程终止失败：{str(e)}"
+            messagebox.showerror("错误", err_msg)
+            logger.error(f"get_log_process_error: {err_msg}")
+        except FileNotFoundError:
+            err_msg = "未找到adb命令，请检查ADB是否已配置到环境变量"
+            messagebox.showerror("错误", err_msg)
+            logger.error(f"get_log_adb_not_found: {err_msg}")
         except Exception as e:
-            logger.info(f"get_log_error_{e}")
+            err_msg = f"日志获取失败：{str(e)}"
+            messagebox.showerror("错误", err_msg)
+            logger.error(f"get_log_error: {err_msg}")
     
     def create_log_file_name(self):
         '''
@@ -128,13 +166,6 @@ class DevicesApp(Frame):
         log_name = log_file + "/" + format_time + ".log"
         return log_name
 
-    
-    # def log_thread(self):
-    #     thread = threading.Thread(target=self.GetLog)
-    #     thread.start()
-    
-    # def on_log_button_click(self):
-    #     self.log_thread()
 
     # 获取设备当前状态
     def get_devices_status(self):
@@ -144,9 +175,9 @@ class DevicesApp(Frame):
 
     def show_log_path(self):
         '''日志路径显示'''
-        status = self.get_devices_status()
+        devcies_status = self.get_devices_status()
         try:
-            if status == "List of devices attached":
+            if "device" not in devcies_status:
                 self.log_text.delete(1.0, END)
                 messagebox.showinfo(message="设备链接失败")
                 logger.info(f"show_log_path_device_link_error_{status}")
@@ -171,9 +202,9 @@ class DevicesApp(Frame):
         picture = format_time + ".png"
         screen_pic = "adb shell screencap -p /sdcard/" + picture
         pull_pic = "adb pull /sdcard/" + picture + " " + scr_path
-        status = self.get_devices_status()
+        devcies_status = self.get_devices_status()
         try:
-            if status == "List of devices attached":
+            if "device" not in devcies_status:
                 messagebox.showinfo(message="手机未链接\n请重新链接手机")
             # 截图
             else:
@@ -222,20 +253,11 @@ class DevicesApp(Frame):
 
     # push文件功能
     def pushFileUI(self):
-        # openFIleBt = Button(self.deviceFrame, text="文件", command=self.get_push_file,
-        #                     **STYTLE["button"])
-        # openFIleBt.grid(row=3, column=0, sticky=W)
-
-        # self.push_fileEntry = Entry(self.deviceFrame)
-        # self.push_fileEntry.grid(row=3, column=1, columnspan=3, sticky=NSEW)
-
         push_Bt = Button(self.deviceFrame, text="push文件到手机sdcard",
                          command=self.on_push_button_click, **STYTLE["button"])
         push_Bt.grid(row=2, column=1, sticky=NSEW)
 
     def adb_push(self, local_path, remote_path):
-        # local_path = self.push_fileEntry.get()
-        # remote_path = "/sdcard"
         try:
             if " " in str(local_path):
                 messagebox.showinfo(message="文件路径有空格")
@@ -263,7 +285,6 @@ class DevicesApp(Frame):
         thread.join(2)
     
     def on_push_button_click(self):
-        # local_path = self.push_fileEntry.get()
         local_path = askopenfilename()
         print(f"local_path__{local_path}")
         remote_path = "/sdcard"
@@ -280,13 +301,6 @@ class DevicesApp(Frame):
 
     def install_apk(self):
         '''安装apk'''
-        # openFIleBt = Button(self.deviceFrame, text="导入安装包", 
-        #                     command=self.get_file_path, **STYTLE["button"])
-        # openFIleBt.grid(row=2, column=0, sticky=W)
-
-        # self.adb_install_fileEntry = Entry(self.deviceFrame)
-        # self.adb_install_fileEntry.grid(row=2, column=1, columnspan=3, sticky=NSEW)
-
         installBt = Button(self.deviceFrame, text="安装.apk文件", 
                            command=self.on_adb_install_click, **STYTLE["button"])
         installBt.grid(row=2, column=0, sticky=NSEW)
@@ -299,11 +313,9 @@ class DevicesApp(Frame):
 
     def adb_install_package(self):
         '''安装package'''
-        # local_path = self.adb_install_fileEntry.get()
         local_path = askopenfilename(filetypes=[("apk文件", "*.apk")])
         print(local_path)
         status = self.get_devices_status()
-        # adb_install = ["adb", "install", " ", local_path]
         adb_install = "adb install" + " "
         if local_path:          
             if status == "List of devices attached":
@@ -317,12 +329,6 @@ class DevicesApp(Frame):
                 else:
                     messagebox.showinfo(message="安装失败")
                 
-                # stdout, stderr = CommonFunc().run_subprocess_popen(args=adb_install)
-                # print(f"stdout:{stdout}" + "\n" + f"stderr:{stderr}")
-                # if "Success" in stdout:
-                #     messagebox.showinfo(message="安装成功")
-                # else:
-                #     messagebox.showinfo(message="安装失败")
             else:
                 messagebox.showinfo(message="确认文件是否正确")
         else:
