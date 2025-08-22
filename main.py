@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     tab_info = [
         (DevicesApp, "手机常用功能"),
-        (VerficationCode, "验证码查询"),
+        (VerficationCode, "常用测试工具"),
         (QrcodeApp, "二维码生成"),
         (TimesstampHash, "时间戳md5转换"),
         (Health, "健康计算"),

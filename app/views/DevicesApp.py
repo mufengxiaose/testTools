@@ -15,7 +15,6 @@ from app.stytles.tk_stytles import STYTLE
 
 logger = Logger().get_logger()
 
-
 class DevicesApp(Frame):
     '''手机部分'''
     def __init__(self, master):
@@ -88,11 +87,11 @@ class DevicesApp(Frame):
         devices_status = CommonFunc().runCmd("adb devices").strip()
         if "device" not in devices_status:
             status = "设备链接失败"
-        elif "offline" in status:
+        elif "offline" in devices_status:
             subprocess.Popen("adb kill-server")
             subprocess.Popen("adb devices")
         else:
-            status = status.replace("List of devices attached", "").strip()
+            status = devices_status.replace("List of devices attached", "").strip()
         return status
 
     def deviceConnect(self):
@@ -107,7 +106,6 @@ class DevicesApp(Frame):
         LOG_DURATION = 8
         devices_status = self.get_devices_status()
         try:
-            # if status == "List of devices attached":
             if "device" not in devices_status:
                 messagebox.showinfo(message="手机未链接\n请重新链接手机")
                 return
@@ -121,7 +119,7 @@ class DevicesApp(Frame):
                 stderr=subprocess.PIPE,
                 text=True
             )
-            print(adb_logcat)
+            logger.info(f'adb_logcat_info{adb_logcat}')
             time.sleep(LOG_DURATION)
             if adb_logcat.poll() is None:  # 进程仍在运行
                 # Windows使用taskkill，Linux/macOS使用pkill
