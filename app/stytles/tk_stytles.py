@@ -35,6 +35,9 @@ STYTLE = {
     },
     "frame": {
         "bg":"#2b4490"
+    },
+    "verficationcode_frame": {
+        "bg": "#7bbfea"
     }
 
 }

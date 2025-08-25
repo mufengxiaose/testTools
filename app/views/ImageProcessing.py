@@ -11,7 +11,7 @@ class ImageProcessing(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.pack
-        self.frame = Frame(self, **STYTLE["frame"])
+        self.frame = Frame(self)
         self.frame.pack(fill=BOTH, expand=True)
         self.ImgGui()
 

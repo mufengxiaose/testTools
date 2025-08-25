@@ -8,7 +8,7 @@ class Health(Frame):
         Frame.__init__(self, master)
         self.pack()
 
-        self.frame = Frame(self, **STYTLE["frame"])
+        self.frame = Frame(self)
         self.weightX = StringVar()
         self.heightX = StringVar()
         self.frame.pack(fill=BOTH, expand=True)

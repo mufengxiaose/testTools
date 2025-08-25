@@ -5,7 +5,7 @@ from app.views.QrcodeApp import QrcodeApp
 from app.views.Health import Health
 from app.views.ImageProcessing import ImageProcessing
 from app.views.DevicesApp import DevicesApp
-from app.views.PanedWindowDemo import CustomFrame
+
 
 
 if __name__ == "__main__":
@@ -23,7 +23,7 @@ if __name__ == "__main__":
         (QrcodeApp, "二维码生成"),
         (Health, "健康计算"),
         (ImageProcessing, "图片处理"),
-        (CustomFrame, "PanedWindowDemo")
+        
     ]
 
     # 使用循环添加选项卡

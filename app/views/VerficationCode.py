@@ -18,7 +18,7 @@ class VerficationCode(Frame):
         # 调用pack方法将Frame放置到父窗口中
         self.pack()
         # 创建一个子Frame用于布局UI元素
-        self.frame = Frame(self, **STYTLE["frame"])
+        self.frame = Frame(self, **STYTLE["verficationcode_frame"])
         self.frame.pack(fill=BOTH, expand=True)
         # 调用ui方法进行UI布局
         self.ui()
