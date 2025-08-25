@@ -21,7 +21,7 @@ class DevicesApp(Frame):
     def __init__(self, master):
         Frame.__init__(self, master)
         self.pack()
-        self.wedgit = Frame(self)
+        self.wedgit = Frame(self, **STYTLE["frame"])
         self.wedgit.pack(fill=BOTH, expand=True)
         self.times_stamp_frame = Frame(self.wedgit, **STYTLE["time_stamp_frame"])
         self.times_stamp_frame.pack(fill=X, expand=False)
@@ -377,7 +377,7 @@ class DevicesApp(Frame):
     # 时间转换
     def times_stamp_wedgit(self):
         '''时间戳'''
-        now_time_label = Label(self.times_stamp_frame, text="现在", **STYTLE["label"])
+        now_time_label = Label(self.times_stamp_frame, text="现在", **STYTLE["timeLable2"])
         now_time_label.grid(row=0, column=0, sticky=W)
 
         self.now_time = StringVar()
@@ -387,7 +387,7 @@ class DevicesApp(Frame):
 
 
         # 时间戳转时间
-        self.timesstamp_label = Label(self.times_stamp_frame, text="时间戳",**STYTLE["label"])
+        self.timesstamp_label = Label(self.times_stamp_frame, text="时间戳",**STYTLE["timeLable2"])
         self.timesstamp_label.grid(row=1, column=0, sticky=W)
 
         self.timesstamp_entry = Entry(self.times_stamp_frame, width=30)
@@ -403,16 +403,16 @@ class DevicesApp(Frame):
 
         self.datetime_text = Text(self.times_stamp_frame, height=1.5, width=30)
         self.datetime_text.grid(row=1, column=4, sticky=W)
-        self.beijing_label = Label(self.times_stamp_frame, text="北京时间", **STYTLE["label"])
+        self.beijing_label = Label(self.times_stamp_frame, text="北京时间", **STYTLE["timeLable2"])
         self.beijing_label.grid(row=1, column=5, sticky=W)
         # 时间转时间戳
-        self.time_0 = Label(self.times_stamp_frame, text="时间", **STYTLE["label"])
+        self.time_0 = Label(self.times_stamp_frame, text="时间", **STYTLE["timeLable2"])
         self.time_0.grid(row=2, column=0, sticky=W)
 
         self.time_to_imestamp_entry = Entry(self.times_stamp_frame, width=30)
         self.time_to_imestamp_entry.grid(row=2, column=1, sticky=NSEW)
         self.time_to_imestamp_entry.insert(1, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-        self.beijing_label1 = Label(self.times_stamp_frame, text="北京时间", **STYTLE["label"]).grid(row=2, column=2, sticky=W)
+        self.beijing_label1 = Label(self.times_stamp_frame, text="北京时间", **STYTLE["timeLable2"]).grid(row=2, column=2, sticky=W)
         conversionBt1 = Button(self.times_stamp_frame, text="转换", command=self.timeTotimestamp, **STYTLE["button"])
         conversionBt1.grid(row=2, column=3, sticky=NSEW)
         self.timesstamp_text1 = Text(self.times_stamp_frame, height=1.5, width=30)

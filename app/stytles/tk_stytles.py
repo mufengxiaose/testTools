@@ -13,15 +13,19 @@ STYTLE = {
         # "bd": 5
     },
     "label": {
-        "bg": "#90d7ec",
+        "bg": "#33a3dc",
         "fg": "black",
         # "font": ("Arial"),
         # "padx": 10,
         # "pady": 10
     },
     "timeLable": {
-        "bg": "#90d7ec",
+        "bg": "#7bbfea",
         "fg": "red",
+    },   
+    "timeLable2": {
+        "bg": "#7bbfea",
+        "fg": "black",
     },
     "devices_frame": {
         "bg":"#33a3dc",
@@ -34,7 +38,7 @@ STYTLE = {
         "relief":tk.FLAT,
     },
     "frame": {
-        "bg":"#2b4490"
+        "bg":"#afdfe4"
     },
     "verficationcode_frame": {
         "bg": "#7bbfea"
