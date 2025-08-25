@@ -2,7 +2,6 @@ from tkinter import Tk
 from tkinter import ttk
 from app.views.VerficationCode import VerficationCode
 from app.views.QrcodeApp import QrcodeApp
-from app.views.TimesstampHash import TimesstampHash
 from app.views.Health import Health
 from app.views.ImageProcessing import ImageProcessing
 from app.views.DevicesApp import DevicesApp
@@ -22,7 +21,6 @@ if __name__ == "__main__":
         (DevicesApp, "手机常用功能"),
         (VerficationCode, "常用测试工具"),
         (QrcodeApp, "二维码生成"),
-        (TimesstampHash, "时间戳md5转换"),
         (Health, "健康计算"),
         (ImageProcessing, "图片处理"),
         (CustomFrame, "PanedWindowDemo")
