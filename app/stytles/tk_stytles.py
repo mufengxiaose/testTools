@@ -1,4 +1,6 @@
 # 定义统一样式参数
+import tkinter as tk
+
 STYTLE = {
     "button": {
         "bg": "lightblue",
@@ -17,8 +19,22 @@ STYTLE = {
         # "padx": 10,
         # "pady": 10
     },
-    "frame": {
-        "bg":"#90d7ec"
+    "timeLable": {
+        "bg": "#90d7ec",
+        "fg": "red",
     },
+    "devices_frame": {
+        "bg":"#33a3dc",
+        "bd":10,
+        "relief":tk.FLAT,
+    },
+    "time_stamp_frame": {
+        "bg": "#7bbfea",
+        "bd":10,
+        "relief":tk.FLAT,
+    },
+    "frame": {
+        "bg":"#2b4490"
+    }
 
 }
