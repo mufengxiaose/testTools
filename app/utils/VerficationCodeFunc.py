@@ -8,8 +8,11 @@
 # Description：
 """
 import requests
+import tkinter as TK
+from io import StringIO
 from urllib.parse import urlencode
 from tkinter import messagebox
+
 
 def get_curl_code(appid, phone_num, timeout=3):
     # 定义请求的URL
@@ -42,3 +45,21 @@ def get_curl_code(appid, phone_num, timeout=3):
         print(f"请求发生异常: {e}")
         # 这里应该是None，原代码有误
         return None
+    
+class TextRedirector(StringIO):
+    """将输出重定向到 Text 组件的工具类"""
+    def __init__(self, text_widget, tag="stdout"):
+        super().__init__()
+        self.text_widget = text_widget
+        self.tag = tag
+
+    def write(self, string):
+        """重写 write 方法，将内容插入到 Text 组件"""
+        # 在主线程中更新 UI
+        self.text_widget.after(0, self._append_text, string)
+        super().write(string)
+
+    def _append_text(self, string):
+        """将文本追加到 Text 组件并自动滚动到底部"""
+        self.text_widget.insert(TK.END, string, self.tag)
+        self.text_widget.see(TK.END)  # 自动滚动到底部

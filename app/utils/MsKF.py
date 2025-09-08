@@ -57,7 +57,6 @@ def run_commands_in_dir(directory, commands):
                 if result.stdout:
                     # print("标准输出:")
                     print(result.stdout)
-                    messagebox.showinfo(message=result.stdout)
             except subprocess.CalledProcessError as e:
                 print(f"命令执行失败: {e.returncode}")
                 if e.stdout:
@@ -75,7 +74,7 @@ def run_commands_in_dir(directory, commands):
         os.chdir(original_dir)
         print(f"已切回原目录: {os.getcwd()}")
 
-    return success
+    return success, result.stderr, result.stdout
 
 if __name__ == '__main__':
     pro_file = "feat-mine-clearance"

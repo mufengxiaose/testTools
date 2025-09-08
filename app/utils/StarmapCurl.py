@@ -48,7 +48,7 @@ def curl_starmap_url_extension(ticket, numbers, cookies):
     response = requests.post(url, headers=headers, data=data)
     print(response.status_code)
     print(response.text)
-    return response
+    return response, response.status_code, response.text
 
 def curl_starmap_url_fixed(ticket, numbers, cookies, code):
     url = "https://mp-platfrom.intra.xiaojukeji.com/platform/adminTool/apply" + "?" + "ticket" + "=" + "%s"%(ticket) + "&app_id=2690"

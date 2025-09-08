@@ -1,10 +1,12 @@
 import time
 import requests
 import threading
+import datetime
 from pathlib import Path
 from tkinter.filedialog import *
 from tkinter import *
 from tkinter import ttk
+# from datetime import datetime
 from app.utils.DcaseFormation import *
 from app.stytles.tk_stytles import STYTLE
 from app.utils.MsKF import mkdir_kf_pro_file, run_commands_in_dir, kf_branch_parent_file
@@ -17,14 +19,19 @@ class VerficationCode(Frame):
         Frame.__init__(self, master)
         # 调用pack方法将Frame放置到父窗口中
         self.pack()
+        self.wedgit = Frame(self)
+        self.wedgit.pack(fill=BOTH, expand=True)
         # 创建一个子Frame用于布局UI元素
-        self.frame = Frame(self, **STYTLE["verficationcode_frame"])
-        self.frame.pack(fill=BOTH, expand=True)
+        self.verfication_code_frame = Frame(self.wedgit, **STYTLE["verficationcode_frame"])
+        self.verfication_code_frame.pack(fill=X, expand=False)
+        self.log_output_frame = Frame(self.wedgit)
+        self.log_output_frame.pack(fill=X, expand=False)
         # 调用ui方法进行UI布局
         self.ui()
         # dcase转换
         self.dcase_formation_ui()
         self.ms_kf_ui()
+        self.log_output_ui()
 
     def ui(self):
         '''ui布局'''
@@ -32,36 +39,36 @@ class VerficationCode(Frame):
         # 定义可选择的appid选项
         option = ['KF微信', 'KF支付宝', 'KF乘客', 'KF司机'] 
         # 创建手机号标签
-        phone_label = Label(self.frame, text='手机号', **STYTLE["label"])
+        phone_label = Label(self.verfication_code_frame, text='手机号', **STYTLE["label"])
         # 将手机号标签放置到网格布局中
         phone_label.grid(row=0, column=0, sticky=NSEW)
         # 创建手机号输入框
-        self.phone_entry = Entry(self.frame, width=38)
+        self.phone_entry = Entry(self.verfication_code_frame, width=38)
         # 将手机号输入框放置到网格布局中
         self.phone_entry.grid(row=0, column=1)
         # 创建appid标签
-        appid_label = Label(self.frame, text="appid，仅线上", **STYTLE["label"])
+        appid_label = Label(self.verfication_code_frame, text="appid，仅线上", **STYTLE["label"])
         # 将appid标签放置到网格布局中
         appid_label.grid(row=1, column=0, sticky=NSEW)
         # 创建下拉选择框，用于选择appid
-        self.combo = ttk.Combobox(self.frame, values=option)
+        self.combo = ttk.Combobox(self.verfication_code_frame, values=option)
         # 未设置默认选中项，可根据需求取消注释设置默认值
         # self.combo.set(option[0])
         # 将下拉选择框放置到网格布局中
         self.combo.grid(row=1, column=1, sticky=NSEW)
         # 创建获取验证码按钮，并绑定点击事件处理函数
-        self.button_get = Button(self.frame, text="获取验证码",
+        self.button_get = Button(self.verfication_code_frame, text="获取验证码",
                                  command=self.on_get_code_bt_click, **STYTLE["button"])
         # 将获取验证码按钮放置到网格布局中
         self.button_get.grid(row=0, column=2, sticky=NSEW)
 
         # 验证码固定
         # 创建输入验证码标签
-        self.fixed_verification_code_label = Label(self.frame, text="固定验证码输入", **STYTLE["label"])
+        self.fixed_verification_code_label = Label(self.verfication_code_frame, text="固定验证码输入", **STYTLE["label"])
         # 将输入验证码标签放置到网格布局中
         self.fixed_verification_code_label.grid(row=3, column=0, sticky=NSEW)
         # 创建输入验证码输入框
-        self.fixed_verification_code_entry = Entry(self.frame, width=20, foreground="gray")
+        self.fixed_verification_code_entry = Entry(self.verfication_code_frame, width=20, foreground="gray")
         self.fixed_verification_code_entry_txt = "非连续性6位数字"
         self.fixed_verification_code_entry.insert(1, self.fixed_verification_code_entry_txt)
         self.fixed_verification_code_entry.bind("<Button-1>", self.clear_verfication_code_text_default_text)
@@ -69,36 +76,36 @@ class VerficationCode(Frame):
         # 将输入验证码输入框放置到网格布局中
         self.fixed_verification_code_entry.grid(row=3, column=1, sticky=NSEW)
         # 创建固定验证码按钮，并绑定点击事件处理函数
-        self.fixed_verification_code_bt = Button(self.frame, text="固定验证码",
+        self.fixed_verification_code_bt = Button(self.verfication_code_frame, text="固定验证码",
                                                  command=self.on_fixed_verification_code_bt_click_thread, **STYTLE["button"])
         # 将固定验证码按钮放置到网格布局中
         self.fixed_verification_code_bt.grid(row=1, column=3)
 
         # cookies
         # 创建cookies标签
-        cookies_label = Label(self.frame, text="cookies", **STYTLE["label"])
+        cookies_label = Label(self.verfication_code_frame, text="cookies", **STYTLE["label"])
         # 将cookies标签放置到网格布局中
         cookies_label.grid(row=5, column=0)
         # 创建cookies文本输入框
-        self.cookies_text = Text(self.frame, width=50, height=5)
+        self.cookies_text = Text(self.verfication_code_frame, width=50, height=5)
         # 将cookies文本输入框放置到网格布局中
         self.cookies_text.grid(row=5, column=1)
         # 创建ticket标签
-        ticket_label = Label(self.frame, text="ticket", **STYTLE['label'])
+        ticket_label = Label(self.verfication_code_frame, text="ticket", **STYTLE['label'])
         ticket_label.grid(row=4, column=0)
         # ticket文本输入框
-        self.ticket_text = Text(self.frame, width=50, height=5)
+        self.ticket_text = Text(self.verfication_code_frame, width=50, height=5)
         self.ticket_text.grid(row=4, column=1)
 
         # 一键续期
         # 定义默认提示文本
         self.default_text = "多手机号逗号间隔"
         # 创建多测试号延期标签
-        nums_label = Label(self.frame, text="输入要延期测试账号", **STYTLE["label"])
+        nums_label = Label(self.verfication_code_frame, text="输入要延期测试账号", **STYTLE["label"])
         # 将多测试号延期标签放置到网格布局中
         nums_label.grid(row=2, column=0)
         # 创建多测试号输入框，设置初始文本和颜色
-        self.nums_text = Text(self.frame, width=50, height=5, foreground="gray")
+        self.nums_text = Text(self.verfication_code_frame, width=50, height=5, foreground="gray")
         self.nums_text.insert(1.0, self.default_text)
         # 将多测试号输入框放置到网格布局中
         self.nums_text.grid(row=2, column=1)
@@ -106,7 +113,7 @@ class VerficationCode(Frame):
         self.nums_text.bind("<Button-1>", self.clear_nums_text_default_text)
         self.nums_text.bind("<FocusOut>", self.nums_text_on_focus_out)
         # 创建一键续期按钮，并绑定点击事件处理函数
-        nums_extension_bt = Button(self.frame, text="一键续期", command=self.nums_extension_bt_click_thread, **STYTLE["button"])
+        nums_extension_bt = Button(self.verfication_code_frame, text="一键续期", command=self.nums_extension_bt_click_thread, **STYTLE["button"])
         # 将一键续期按钮放置到网格布局中
         nums_extension_bt.grid(row=1, column=2)
 
@@ -129,6 +136,7 @@ class VerficationCode(Frame):
 
     def on_get_code_bt_click(self):
         # 获取appid和手机号
+        self.log_action(message="获取验证码", level="info")
         appid, phone_num = self.get_phone_appid()
         print(type(phone_num))
         # 调用get_curl_code方法获取验证码结果
@@ -140,9 +148,11 @@ class VerficationCode(Frame):
             verication_code = result.get('data')
             if verication_code:
                 # 如果有验证码数据，弹出消息框显示验证码
+                self.log_action(message=f"验证码：{verication_code}")
                 messagebox.showinfo(message=f'{verication_code}')
             else:
                 # 如果没有验证码数据，弹出消息框显示错误信息
+                self.log_action(message=f"{error}")
                 messagebox.showinfo(message=f'{error}')
         else:
             # 如果请求结果为空，弹出消息框提示请求出错
@@ -170,22 +180,80 @@ class VerficationCode(Frame):
         # 获取多测试号输入框中的手机号列表
         nums = self.get_nums_text_phone() or self.phone_entry.get()
         ticket = self.ticket_text.get("1.0", END)
-        cookies = self.cookies_text.get("1.0", END)
-        print("cookies", cookies)
-        clear_cookies = cookies.replace("\n", "").replace("\r", "")
-        print("clear_cookies", clear_cookies)
-        cookies_dict = {item.split('=')[0]: item.split('=')[1] for item in clear_cookies.split('; ')}
-        print("cookies_dict", cookies_dict)
+        cookies_dict = self.parse_cookies()
         code = self.fixed_verification_code_entry.get()
         for num in nums:
             # 调用curl_starmap_url_fixed方法发送请求
             result = curl_starmap_url_fixed(ticket=ticket, cookies=cookies_dict, code=code, numbers=num)
             print(result)
+            self.log_action(message=f"{result}", level='info')
             # 每次请求间隔1秒
             time.sleep(1)
-
+    def parse_cookies(self, cookies_str=NONE):
+        """
+        将 Cookies 字符串解析为字典，支持异常输入校验和特殊情况处理
+        
+        参数:
+            cookies_str: 原始 Cookies 字符串，格式如 "key1=value1; key2=value2=xyz"
+        
+        返回:
+            dict: 解析后的 Cookies 字典
+        
+        异常:
+            TypeError: 当输入不是字符串类型时抛出
+            ValueError: 当输入为空字符串或格式严重错误时抛出
+        """
+        cookies_str = self.cookies_text.get("1.0", END)
+        print("cookies", cookies_str)
+        clear_cookies = cookies_str.replace("\n", "").replace("\r", "")
+        print("clear_cookies", clear_cookies)
+        # cookies_dict = {item.split('=')[0]: item.split('=')[1] for item in clear_cookies.split('; ')}
+        # print("cookies_dict", cookies_dict)
+        # 1. 校验输入类型
+        if not isinstance(cookies_str, str):
+            raise TypeError(f"预期输入为字符串，实际收到 {type(cookies_str).__name__} 类型")
+        
+        # 2. 校验输入内容是否为空
+        stripped_cookies = cookies_str.strip()
+        if not stripped_cookies:
+            raise ValueError("输入的Cookies字符串为空或仅包含空白字符")
+        
+        cookies_dict = {}
+        # 按 '; ' 分割，过滤空字符串
+        items = [item.strip() for item in stripped_cookies.split('; ') if item.strip()]
+        
+        # 3. 校验是否有有效项
+        if not items:
+            raise ValueError("Cookies字符串格式错误，未找到有效键值对")
+        
+        for index, item in enumerate(items, 1):
+            try:
+                if '=' in item:
+                    # 只按第一个 '=' 分割，处理值中包含 '=' 的情况
+                    key, value = item.split('=', 1)
+                    key = key.strip()
+                    value = value.strip()
+                    
+                    # 校验键是否为空
+                    if not key:
+                        raise ValueError(f"第{index}项键名为空（格式：{item}）")
+                    
+                    cookies_dict[key] = value
+                else:
+                    # 处理没有 '=' 的项（视为键名，值为空）
+                    key = item.strip()
+                    if not key:
+                        raise ValueError(f"第{index}项为无效空值（格式：{item}）")
+                    cookies_dict[key] = ""
+                    
+            except Exception as e:
+                # 包装异常信息，方便定位问题
+                raise ValueError(f"解析第{index}项时出错：{str(e)}") from e
+        
+        return cookies_dict
 
     def on_fixed_verification_code_bt_click_thread(self):
+        """固定验证码线程"""
         self.thread_func(target=self.on_fixed_verification_code_bt_click)
 
     def clear_nums_text_default_text(self, event):
@@ -212,12 +280,14 @@ class VerficationCode(Frame):
             print(num)
             print(type(num))
             # 调用curl_starmap_url_extension方法发送请求
-            curl_starmap_url_extension(ticket=ticket, cookies=cookies, numbers=num)
+            resp, errno, text = curl_starmap_url_extension(ticket=ticket, cookies=cookies, numbers=num)
             # 每次请求间隔1秒
             time.sleep(1)
+            self.log_action(f"{resp}{errno}{text}")
 
 
     def nums_extension_bt_click_thread(self):
+        '''多测试号延期线程'''
         self.thread_func(target=self.nums_extension_bt_click)
 
     def get_file_path(self):
@@ -248,22 +318,22 @@ class VerficationCode(Frame):
             self.nums_text.config(fg="gray")  # 设置文字颜色为灰色
 
     def dcase_formation_ui(self):
-        separator = ttk.Separator(self.frame, style="BlackSeparator.TSeparator")
+        separator = ttk.Separator(self.verfication_code_frame, style="BlackSeparator.TSeparator")
         separator.grid(row=6, column=0, sticky="ew", pady=10, columnspan=8)
         # 创建选择文件按钮，点击时调用 select_file 函数
-        select_button = Button(self.frame, text="选择 Dcase 测试用例文件", command=select_file, **STYTLE['button'])
+        select_button = Button(self.verfication_code_frame, text="选择 Dcase 测试用例文件", command=select_file, **STYTLE['button'])
         select_button.grid(row=7, column=0)
 
     def ms_kf_ui(self):
         # 分割线
-        separator = ttk.Separator(self.frame, style="BlackSeparator.TSeparator")
+        separator = ttk.Separator(self.verfication_code_frame, style="BlackSeparator.TSeparator")
         separator.grid(row=8, column=0, sticky="ew", pady=10, columnspan=8)
         #创建label、entey、button
-        kf_branch_label = Label(self.frame, text="分支名称", **STYTLE["label"])
+        kf_branch_label = Label(self.verfication_code_frame, text="分支名称", **STYTLE["label"])
         kf_branch_label.grid(row=9, column=0)
-        self.kf_branch_input_entry = Entry(self.frame, width=38)
+        self.kf_branch_input_entry = Entry(self.verfication_code_frame, width=38)
         self.kf_branch_input_entry.grid(row=9, column=1)
-        kf_branch_bt = Button(self.frame, text="点击开始", command=self.ms_kf_thread,
+        kf_branch_bt = Button(self.verfication_code_frame, text="点击开始", command=self.ms_kf_thread,
                               **STYTLE['button'])
         kf_branch_bt.grid(row=9, column=2)
 
@@ -274,10 +344,12 @@ class VerficationCode(Frame):
         target_dir = Path.home() / "code" / branch
         commands_to_run = [
             ["echo", "开始执行命令"],
-            ["ms", "_kf", "%s" % (branch)]
+            ["ms", "_kf", "%s" % (branch)],
         ]
-        success = run_commands_in_dir(target_dir, commands_to_run)
+        success, stderr, stdout = run_commands_in_dir(target_dir, commands_to_run)
+        self.log_action(message=f"{stderr}{stdout}", level='info')
         if success:
+            print(f"success--{success}")
             print("所有命令执行完毕")
         else:
             print("命令执行过程中出错")
@@ -291,5 +363,47 @@ class VerficationCode(Frame):
             print("线程结束")
 
     def ms_kf_thread(self):
+        self.log_action(message="开始拉取分支", level='info')
         self.thread_func(target=self.ms_kf_branch_func)
 
+    def log_output_ui(self):
+        log_output_label = Label(self.log_output_frame, text="日志输出")
+        log_output_label.pack()
+        # 添加滚动条
+        scrollbar = ttk.Scrollbar(self.log_output_frame)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # 日志文本框
+        self.log_text = tk.Text(
+            self.log_output_frame,
+            wrap=tk.WORD,
+            yscrollcommand=scrollbar.set,
+            bg="#f0f0f0",
+            font=("Consolas", 10)
+        )
+        self.log_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.config(command=self.log_text.yview)
+
+        # 配置文本标签（用于区分不同类型的日志）
+        self.log_text.tag_configure("stdout", foreground="black")
+        self.log_text.tag_configure("stderr", foreground="red")
+        self.log_text.tag_configure("info", foreground="blue")
+        self.log_text.tag_configure("warning", foreground="#FFA500")
+        self.log_text.tag_configure("error", foreground="red", font=("Consolas", 10, "bold"))
+
+    def log_action(self, message, level='info'):
+        """记录操作日志到文本框"""
+        # 获取当前时间
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # 格式化日志内容
+        log_entry = f"[{timestamp}] {message}\n"
+        
+        # 启用文本框编辑，插入日志，然后禁用编辑
+        self.log_text.config(state=tk.NORMAL)
+        self.log_text.insert(tk.END, f"[{timestamp}] ", "time")
+        self.log_text.insert(tk.END, f"{message}\n", level)
+        self.log_text.config(state=tk.DISABLED)
+        
+        # 自动滚动到底部
+        self.log_text.see(tk.END)
