@@ -347,12 +347,8 @@ class VerficationCode(Frame):
             ["ms", "_kf", "%s" % (branch)],
         ]
         success, stderr, stdout = run_commands_in_dir(target_dir, commands_to_run)
-        self.log_action(message=f"{stderr}{stdout}", level='info')
-        if success:
-            print(f"success--{success}")
-            print("所有命令执行完毕")
-        else:
-            print("命令执行过程中出错")
+        self.log_action(message=f"{stderr}{stdout}\n执行完成", level='info')
+
 
     def thread_func(self, target=None):
         thread_ = threading.Thread(target=target)
