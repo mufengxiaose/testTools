@@ -1,5 +1,6 @@
-from tkinter import Tk
+# from tkinter import Tk
 from tkinter import ttk
+from tkinter import *
 from app.views.VerficationCode import VerficationCode
 from app.views.QrcodeApp import QrcodeApp
 from app.views.Health import Health
@@ -11,11 +12,12 @@ from app.views.DevicesApp import DevicesApp
 if __name__ == "__main__":
     root = Tk()
     root.title("test tools")
-    root.geometry("1200x600+70+10")
+    root.geometry("1200x700+70+10")
 
     tabStyle = ttk.Style()
     tabStyle.configure('TNotebook.Tab', foreground='blue')
-    tabNote = ttk.Notebook(root, width=1200, height=600)
+    # tabNote = ttk.Notebook(root, width=1200, height=700)
+    tabNote = ttk.Notebook(root)
 
     tab_info = [
         (DevicesApp, "手机常用功能"),
@@ -29,6 +31,6 @@ if __name__ == "__main__":
     # 使用循环添加选项卡
     for app_class, tab_text in tab_info:
         tabNote.add(app_class(tabNote), text=tab_text)
-    tabNote.pack(expand=0, anchor='nw')
+    tabNote.pack(expand=0, anchor='nw', fill=BOTH)
 
     root.mainloop()
