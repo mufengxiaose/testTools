@@ -39,17 +39,17 @@ class VerficationCode(Frame):
         # 定义可选择的appid选项
         option = ['KF微信', 'KF支付宝', 'KF乘客', 'KF司机'] 
         # 创建手机号标签
-        phone_label = Label(self.verfication_code_frame, text='手机号', **STYTLE["label"])
+        phone_label = Label(self.verfication_code_frame, text='手机号', **STYTLE["codeLable"])
         # 将手机号标签放置到网格布局中
-        phone_label.grid(row=0, column=0, sticky=NSEW)
+        phone_label.grid(row=0, column=0, sticky=W)
         # 创建手机号输入框
         self.phone_entry = Entry(self.verfication_code_frame, width=38)
         # 将手机号输入框放置到网格布局中
         self.phone_entry.grid(row=0, column=1)
         # 创建appid标签
-        appid_label = Label(self.verfication_code_frame, text="appid，仅线上", **STYTLE["label"])
+        appid_label = Label(self.verfication_code_frame, text="appid，仅线上", **STYTLE["codeLable"])
         # 将appid标签放置到网格布局中
-        appid_label.grid(row=1, column=0, sticky=NSEW)
+        appid_label.grid(row=1, column=0, sticky=W)
         # 创建下拉选择框，用于选择appid
         self.combo = ttk.Combobox(self.verfication_code_frame, values=option)
         # 未设置默认选中项，可根据需求取消注释设置默认值
@@ -64,9 +64,9 @@ class VerficationCode(Frame):
 
         # 验证码固定
         # 创建输入验证码标签
-        self.fixed_verification_code_label = Label(self.verfication_code_frame, text="固定验证码输入", **STYTLE["label"])
+        self.fixed_verification_code_label = Label(self.verfication_code_frame, text="固定验证码:", **STYTLE["codeLable"])
         # 将输入验证码标签放置到网格布局中
-        self.fixed_verification_code_label.grid(row=3, column=0, sticky=NSEW)
+        self.fixed_verification_code_label.grid(row=3, column=0, sticky=W)
         # 创建输入验证码输入框
         self.fixed_verification_code_entry = Entry(self.verfication_code_frame, width=20, foreground="gray")
         self.fixed_verification_code_entry_txt = "非连续性6位数字"
@@ -83,16 +83,16 @@ class VerficationCode(Frame):
 
         # cookies
         # 创建cookies标签
-        cookies_label = Label(self.verfication_code_frame, text="cookies", **STYTLE["label"])
+        cookies_label = Label(self.verfication_code_frame, text="cookies", **STYTLE["codeLable"])
         # 将cookies标签放置到网格布局中
-        cookies_label.grid(row=5, column=0)
+        cookies_label.grid(row=5, column=0, sticky=W)
         # 创建cookies文本输入框
         self.cookies_text = Text(self.verfication_code_frame, width=50, height=5)
         # 将cookies文本输入框放置到网格布局中
         self.cookies_text.grid(row=5, column=1)
         # 创建ticket标签
-        ticket_label = Label(self.verfication_code_frame, text="ticket", **STYTLE['label'])
-        ticket_label.grid(row=4, column=0)
+        ticket_label = Label(self.verfication_code_frame, text="ticket", **STYTLE['codeLable'])
+        ticket_label.grid(row=4, column=0, sticky=W)
         # ticket文本输入框
         self.ticket_text = Text(self.verfication_code_frame, width=50, height=5)
         self.ticket_text.grid(row=4, column=1)
@@ -101,9 +101,9 @@ class VerficationCode(Frame):
         # 定义默认提示文本
         self.default_text = "多手机号逗号间隔"
         # 创建多测试号延期标签
-        nums_label = Label(self.verfication_code_frame, text="输入要延期测试账号", **STYTLE["label"])
+        nums_label = Label(self.verfication_code_frame, text="输入要延期测试账号", **STYTLE["codeLable"])
         # 将多测试号延期标签放置到网格布局中
-        nums_label.grid(row=2, column=0)
+        nums_label.grid(row=2, column=0, sticky=W)
         # 创建多测试号输入框，设置初始文本和颜色
         self.nums_text = Text(self.verfication_code_frame, width=50, height=5, foreground="gray")
         self.nums_text.insert(1.0, self.default_text)
@@ -140,7 +140,7 @@ class VerficationCode(Frame):
         appid, phone_num = self.get_phone_appid()
         print(type(phone_num))
         # 调用get_curl_code方法获取验证码结果
-        result = get_curl_code(appid=appid, phone_num=phone_num)
+        result = get_curl_code(phone_num=phone_num)
         if result:
             # 获取结果中的错误信息
             error = result.get('error')

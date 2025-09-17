@@ -21,8 +21,12 @@ STYTLE = {
     },
     "timeLable": {
         "bg": "#7bbfea",
+        "fg": "black",
+    },  
+    "codeLable": {
+        "bg": "#7bbfea",
         "fg": "red",
-    },   
+    }, 
     "timeLable2": {
         "bg": "#7bbfea",
         "fg": "black",
