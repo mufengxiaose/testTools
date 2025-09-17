@@ -13,6 +13,7 @@ from app.utils.MsKF import mkdir_kf_pro_file, run_commands_in_dir, kf_branch_par
 from app.utils.StarmapCurl import curl_starmap_url_extension, curl_starmap_url_fixed
 from app.utils.VerficationCodeFunc import get_curl_code
 
+appids = ['130003', '130000', '130001', '130003']
 class VerficationCode(Frame):
     '''验证码获取'''
     def __init__(self, master=None):
@@ -36,8 +37,6 @@ class VerficationCode(Frame):
     def ui(self):
         '''ui布局'''
         # 验证码查询
-        # 定义可选择的appid选项
-        option = ['KF微信', 'KF支付宝', 'KF乘客', 'KF司机'] 
         # 创建手机号标签
         phone_label = Label(self.verfication_code_frame, text='手机号', **STYTLE["codeLable"])
         # 将手机号标签放置到网格布局中
@@ -46,16 +45,6 @@ class VerficationCode(Frame):
         self.phone_entry = Entry(self.verfication_code_frame, width=38)
         # 将手机号输入框放置到网格布局中
         self.phone_entry.grid(row=0, column=1)
-        # 创建appid标签
-        appid_label = Label(self.verfication_code_frame, text="appid，仅线上", **STYTLE["codeLable"])
-        # 将appid标签放置到网格布局中
-        appid_label.grid(row=1, column=0, sticky=W)
-        # 创建下拉选择框，用于选择appid
-        self.combo = ttk.Combobox(self.verfication_code_frame, values=option)
-        # 未设置默认选中项，可根据需求取消注释设置默认值
-        # self.combo.set(option[0])
-        # 将下拉选择框放置到网格布局中
-        self.combo.grid(row=1, column=1, sticky=NSEW)
         # 创建获取验证码按钮，并绑定点击事件处理函数
         self.button_get = Button(self.verfication_code_frame, text="获取验证码",
                                  command=self.on_get_code_bt_click, **STYTLE["button"])
@@ -79,7 +68,7 @@ class VerficationCode(Frame):
         self.fixed_verification_code_bt = Button(self.verfication_code_frame, text="固定验证码",
                                                  command=self.on_fixed_verification_code_bt_click_thread, **STYTLE["button"])
         # 将固定验证码按钮放置到网格布局中
-        self.fixed_verification_code_bt.grid(row=1, column=3)
+        self.fixed_verification_code_bt.grid(row=1, column=1)
 
         # cookies
         # 创建cookies标签
@@ -115,48 +104,36 @@ class VerficationCode(Frame):
         # 创建一键续期按钮，并绑定点击事件处理函数
         nums_extension_bt = Button(self.verfication_code_frame, text="一键续期", command=self.nums_extension_bt_click_thread, **STYTLE["button"])
         # 将一键续期按钮放置到网格布局中
-        nums_extension_bt.grid(row=1, column=2)
+        nums_extension_bt.grid(row=1, column=0)
 
-    def get_phone_appid(self):
-        '''获取验证码'''
-        # 获取下拉选择框中选中的appid选项
-        appid = self.combo.get()
-        # 获取手机号输入框中的内容
-        phone_num = self.phone_entry.get()
-        # 根据选中的appid选项，将其转换为对应的数字id
-        if appid == "KF微信":
-            appid = 130003
-        elif appid == "KF支付宝":
-            appid = 130004
-        elif appid == "KF乘客":
-            appid = 130000
-        elif appid == "KF司机":
-            appid = 130001
-        return appid, phone_num
 
     def on_get_code_bt_click(self):
         # 获取appid和手机号
         self.log_action(message="获取验证码", level="info")
-        appid, phone_num = self.get_phone_appid()
+        # 获取手机号输入框中的内容
+        phone_num = self.phone_entry.get()
         print(type(phone_num))
         # 调用get_curl_code方法获取验证码结果
-        result = get_curl_code(phone_num=phone_num)
-        if result:
-            # 获取结果中的错误信息
-            error = result.get('error')
-            # 获取结果中的验证码数据
-            verication_code = result.get('data')
-            if verication_code:
-                # 如果有验证码数据，弹出消息框显示验证码
-                self.log_action(message=f"验证码：{verication_code}")
-                messagebox.showinfo(message=f'{verication_code}')
+        for appid in appids:
+            result = get_curl_code(appid=appid, phone_num=phone_num)
+            if result:
+                # 获取结果中的错误信息
+                error = result.get('error')
+                # 获取结果中的验证码数据
+                verication_code = result.get('data')
+                if verication_code:
+                    # 如果有验证码数据，弹出消息框显示验证码
+                    self.log_action(message=f"验证码：{verication_code}")
+                    messagebox.showinfo(message=f'{verication_code}')
+                    return
+                else:
+                    # 如果没有验证码数据，弹出消息框显示错误信息
+                    self.log_action(message=f"{error}")
+                    messagebox.showinfo(message=f'{error}')
+                    return
             else:
-                # 如果没有验证码数据，弹出消息框显示错误信息
-                self.log_action(message=f"{error}")
-                messagebox.showinfo(message=f'{error}')
-        else:
-            # 如果请求结果为空，弹出消息框提示请求出错
-            messagebox.showinfo(message="请求出错")
+                # 如果请求结果为空，弹出消息框提示请求出错
+                messagebox.showinfo(message="请求出错")
 
     def generate_expired_timestamp(self):
         """
