@@ -68,7 +68,7 @@ class VerficationCode(Frame):
         self.fixed_verification_code_bt = Button(self.verfication_code_frame, text="固定验证码",
                                                  command=self.on_fixed_verification_code_bt_click_thread, **STYTLE["button"])
         # 将固定验证码按钮放置到网格布局中
-        self.fixed_verification_code_bt.grid(row=1, column=1)
+        self.fixed_verification_code_bt.grid(row=1, column=1, sticky=W)
 
         # cookies
         # 创建cookies标签
