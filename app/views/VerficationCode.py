@@ -173,7 +173,7 @@ class VerficationCode(Frame):
             # 调用curl_starmap_url_fixed方法发送请求
             result = curl_starmap_url_fixed(ticket=ticket, cookies=cookies_dict, code=code, numbers=num)
             print(result)
-            self.log_action(message=f"{result}", level='info')
+            self.log_action(message=f"{num}{result}", level='info')
             # 每次请求间隔1秒
             time.sleep(1)
     def parse_cookies(self, cookies_str=NONE):
