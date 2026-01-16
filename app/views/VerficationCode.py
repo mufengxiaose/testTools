@@ -2,12 +2,12 @@ import time
 import requests
 import threading
 import datetime
+import tkinter as tk
 from pathlib import Path
 from tkinter.filedialog import *
 from tkinter import *
 from tkinter import ttk
 # from datetime import datetime
-from app.utils.DcaseFormation import *
 from app.stytles.tk_stytles import STYTLE
 from app.utils.MsKF import mkdir_kf_pro_file, run_commands_in_dir, kf_branch_parent_file
 from app.utils.StarmapCurl import curl_starmap_url_extension, curl_starmap_url_fixed
@@ -29,8 +29,6 @@ class VerficationCode(Frame):
         self.log_output_frame.pack(fill=X, expand=False)
         # 调用ui方法进行UI布局
         self.ui()
-        # dcase转换
-        self.dcase_formation_ui()
         self.ms_kf_ui()
         self.log_output_ui()
 
@@ -128,12 +126,13 @@ class VerficationCode(Frame):
             verification_code = result.get('data')
             if verification_code:
                 if verification_code == "验证码过期":
-                    self.log_action(message=f"appid: {appid} 验证码：{verification_code}")
+                    self.log_action(message=f"appid: {appid} 验证码：{verification_code}", font="red_large")
                     messagebox.showinfo(message=f'appid: {appid} {verification_code}')
                     continue  # 继续尝试下一个appid
                 else:
                     # 获取到有效验证码，返回结果
-                    self.log_action(message=f"appid: {appid} 成功获取验证码: {verification_code}")
+                    self.log_action(message=f"appid: {appid} 成功获取验证码: {verification_code}", font='red_large')
+                    messagebox.showinfo(message=f"{verification_code}")
                     return verification_code  # 可考虑返回验证码供后续使用
             else:
                 # 无验证码数据，显示错误信息
@@ -173,7 +172,7 @@ class VerficationCode(Frame):
             # 调用curl_starmap_url_fixed方法发送请求
             result = curl_starmap_url_fixed(ticket=ticket, cookies=cookies_dict, code=code, numbers=num)
             print(result)
-            self.log_action(message=f"{num}{result}", level='info')
+            self.log_action(message=f"{num}{result}", level='info', font='red_large')
             # 每次请求间隔1秒
             time.sleep(1)
     def parse_cookies(self, cookies_str=NONE):
@@ -304,13 +303,6 @@ class VerficationCode(Frame):
             self.nums_text.insert("1.0", self.default_text)  # 恢复原文案
             self.nums_text.config(fg="gray")  # 设置文字颜色为灰色
 
-    def dcase_formation_ui(self):
-        separator = ttk.Separator(self.verfication_code_frame, style="BlackSeparator.TSeparator")
-        separator.grid(row=6, column=0, sticky="ew", pady=10, columnspan=8)
-        # 创建选择文件按钮，点击时调用 select_file 函数
-        select_button = Button(self.verfication_code_frame, text="选择 Dcase 测试用例文件", command=select_file, **STYTLE['button'])
-        select_button.grid(row=7, column=0)
-
     def ms_kf_ui(self):
         # 分割线
         separator = ttk.Separator(self.verfication_code_frame, style="BlackSeparator.TSeparator")
@@ -374,18 +366,41 @@ class VerficationCode(Frame):
         self.log_text.tag_configure("warning", foreground="#FFA500")
         self.log_text.tag_configure("error", foreground="red", font=("Consolas", 10, "bold"))
 
-    def log_action(self, message, level='info'):
+    def _init_tags(self):
+        """初始化所有可能用到的标签样式（只执行一次）"""
+        # 时间戳标签
+        self.log_text.tag_configure("time", foreground="#6c757d", font=("微软雅黑", 10))
+
+        # 日志级别标签（控制颜色）
+        self.log_text.tag_configure("info", foreground="#212529")
+        self.log_text.tag_configure("warning", foreground="#e67700")
+        self.log_text.tag_configure("error", foreground="#e03131")
+
+        # 字体大小标签（控制字体大小）
+        self.log_text.tag_configure("small", font=("微软雅黑", 8))
+        self.log_text.tag_configure("normal", font=("微软雅黑", 12))
+        self.log_text.tag_configure("large", font=("微软雅黑", 16, "bold"))
+        self.log_text.tag_configure("red_large", font=("微软雅黑", 14), foreground="red")
+
+    def log_action(self, message, level='info', font="normal"):
         """记录操作日志到文本框"""
+        # 验证参数有效性
+        valid_levels = ['info', 'warning', 'error']
+        valid_fonts = ['small', 'normal', 'large', 'red_large']
+        if level not in valid_levels:
+            level = 'info'
+        if font not in valid_fonts:
+            font = 'normal'
         # 获取当前时间
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # 格式化日志内容
         log_entry = f"[{timestamp}] {message}\n"
-        
+
         # 启用文本框编辑，插入日志，然后禁用编辑
         self.log_text.config(state=tk.NORMAL)
         self.log_text.insert(tk.END, f"[{timestamp}] ", "time")
-        self.log_text.insert(tk.END, f"{message}\n", level)
+        self.log_text.insert(tk.END, f"{message}\n", [level, font])
         self.log_text.config(state=tk.DISABLED)
         
         # 自动滚动到底部
