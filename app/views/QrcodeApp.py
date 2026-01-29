@@ -43,6 +43,7 @@ class QrcodeApp(Frame):
         """展示二维码图片"""
         self.qrcodeGeneration()
         self.img = Image.open(os.getcwd() + "/qrcodeImg/img.png")
+        self.img.resize((400,400), Image.Resampling.LANCZOS)
         self.photo = ImageTk.PhotoImage(self.img)
         self.qc_label = Label(self.qrcodeFrame, image=self.photo)
         self.qc_label.grid(row=2)
