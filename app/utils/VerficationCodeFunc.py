@@ -12,11 +12,12 @@ import tkinter as TK
 from io import StringIO
 from urllib.parse import urlencode
 from tkinter import messagebox
+from common import config
 
 
 def get_curl_code(appid, phone_num, timeout=3):
     # 定义请求的URL
-    url = 'http://10.85.172.18:8000/passport/user/v5/querySmsCode'
+    url = config.code_url
     # 要发送的数据
     data = {
         'q': '{"country_calling_code":"+86","appid":%s,"cell":"%s","operator":"passport-pre-autotest"}' % (

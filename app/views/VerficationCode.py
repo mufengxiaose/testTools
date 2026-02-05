@@ -12,8 +12,10 @@ from app.stytles.tk_stytles import STYTLE
 from app.utils.MsKF import mkdir_kf_pro_file, run_commands_in_dir, kf_branch_parent_file
 from app.utils.StarmapCurl import curl_starmap_url_extension, curl_starmap_url_fixed
 from app.utils.VerficationCodeFunc import get_curl_code
+from common import config
 
 appids = ['130003', '130000', '130001', '130004']
+appids_dict = config.appids_dict
 class VerficationCode(Frame):
     '''验证码获取'''
     def __init__(self, master=None):
@@ -112,13 +114,13 @@ class VerficationCode(Frame):
         phone_num = self.phone_entry.get()
         print(type(phone_num))
         # 调用get_curl_code方法获取验证码结果
-        for appid in appids:
+        for appid in appids_dict.keys():
             self.log_action(message=f"开始处理appid: {appid}")
             result = get_curl_code(appid=appid, phone_num=phone_num)
             if not result:
                 # 接口无返回结果的情况
-                self.log_action(message=f"appid: {appid} 调用接口无返回")
-                messagebox.showinfo(message=f"appid: {appid} 接口请求失败")
+                self.log_action(message=f"appid: {appid, appids_dict(appid)} 调用接口无返回")
+                # messagebox.showinfo(message=f"appid: {appid} 接口请求失败")
                 continue  # 继续处理下一个appid
                 # 获取结果中的错误信息
             error_info = result.get('error')
@@ -126,17 +128,17 @@ class VerficationCode(Frame):
             verification_code = result.get('data')
             if verification_code:
                 if verification_code == "验证码过期":
-                    self.log_action(message=f"appid: {appid} 验证码：{verification_code}", font="red_large")
-                    messagebox.showinfo(message=f'appid: {appid} {verification_code}')
+                    self.log_action(message=f"appid: {appid, appids_dict[appid]} 验证码：{verification_code}", font="red_large")
+                    # messagebox.showinfo(message=f'appid: {appid} {verification_code}')
                     continue  # 继续尝试下一个appid
                 else:
                     # 获取到有效验证码，返回结果
-                    self.log_action(message=f"appid: {appid} 成功获取验证码: {verification_code}", font='red_large')
-                    messagebox.showinfo(message=f"{verification_code}")
-                    return verification_code  # 可考虑返回验证码供后续使用
+                    self.log_action(message=f"appid: {appid, appids_dict[appid]} 成功获取验证码: {verification_code}", font='red_large')
+                    verification_code  # 可考虑返回验证码供后续使用
+                   
             else:
                 # 无验证码数据，显示错误信息
-                error_msg = error_info or f"appid: {appid} 未获取到验证码"
+                error_msg = error_info or f"appid: {appid, appids_dict[appid]} 未获取到验证码"
                 self.log_action(message=error_msg)
                 # 这里使用continue还是return取决于业务逻辑：
                 # continue：继续尝试其他appid
