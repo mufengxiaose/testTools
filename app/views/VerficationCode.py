@@ -14,7 +14,6 @@ from app.utils.StarmapCurl import curl_starmap_url_extension, curl_starmap_url_f
 from app.utils.VerficationCodeFunc import get_curl_code
 from common import config
 
-appids = ['130003', '130000', '130001', '130004']
 appids_dict = config.appids_dict
 class VerficationCode(Frame):
     '''验证码获取'''
@@ -51,60 +50,60 @@ class VerficationCode(Frame):
         # 将获取验证码按钮放置到网格布局中
         self.button_get.grid(row=0, column=2, sticky=NSEW)
 
-        # 验证码固定
-        # 创建输入验证码标签
-        self.fixed_verification_code_label = Label(self.verfication_code_frame, text="固定验证码:", **STYTLE["codeLable"])
-        # 将输入验证码标签放置到网格布局中
-        self.fixed_verification_code_label.grid(row=3, column=0, sticky=W)
-        # 创建输入验证码输入框
-        self.fixed_verification_code_entry = Entry(self.verfication_code_frame, width=20, foreground="gray")
-        self.fixed_verification_code_entry_txt = "非连续性6位数字"
-        self.fixed_verification_code_entry.insert(1, self.fixed_verification_code_entry_txt)
-        self.fixed_verification_code_entry.bind("<Button-1>", self.clear_verfication_code_text_default_text)
-        self.fixed_verification_code_entry.bind("<FocusOut>", self.fixed_verification_code_entry_on_focus_out)
-        # 将输入验证码输入框放置到网格布局中
-        self.fixed_verification_code_entry.grid(row=3, column=1, sticky=NSEW)
-        # 创建固定验证码按钮，并绑定点击事件处理函数
-        self.fixed_verification_code_bt = Button(self.verfication_code_frame, text="固定验证码",
-                                                 command=self.on_fixed_verification_code_bt_click_thread, **STYTLE["button"])
-        # 将固定验证码按钮放置到网格布局中
-        self.fixed_verification_code_bt.grid(row=1, column=1, sticky=W)
+        # # 验证码固定
+        # # 创建输入验证码标签
+        # self.fixed_verification_code_label = Label(self.verfication_code_frame, text="固定验证码:", **STYTLE["codeLable"])
+        # # 将输入验证码标签放置到网格布局中
+        # self.fixed_verification_code_label.grid(row=3, column=0, sticky=W)
+        # # 创建输入验证码输入框
+        # self.fixed_verification_code_entry = Entry(self.verfication_code_frame, width=20, foreground="gray")
+        # self.fixed_verification_code_entry_txt = "非连续性6位数字"
+        # self.fixed_verification_code_entry.insert(1, self.fixed_verification_code_entry_txt)
+        # self.fixed_verification_code_entry.bind("<Button-1>", self.clear_verfication_code_text_default_text)
+        # self.fixed_verification_code_entry.bind("<FocusOut>", self.fixed_verification_code_entry_on_focus_out)
+        # # 将输入验证码输入框放置到网格布局中
+        # self.fixed_verification_code_entry.grid(row=3, column=1, sticky=NSEW)
+        # # 创建固定验证码按钮，并绑定点击事件处理函数
+        # self.fixed_verification_code_bt = Button(self.verfication_code_frame, text="固定验证码",
+        #                                          command=self.on_fixed_verification_code_bt_click_thread, **STYTLE["button"])
+        # # 将固定验证码按钮放置到网格布局中
+        # self.fixed_verification_code_bt.grid(row=1, column=1, sticky=W)
 
-        # cookies
-        # 创建cookies标签
-        cookies_label = Label(self.verfication_code_frame, text="cookies", **STYTLE["codeLable"])
-        # 将cookies标签放置到网格布局中
-        cookies_label.grid(row=5, column=0, sticky=W)
-        # 创建cookies文本输入框
-        self.cookies_text = Text(self.verfication_code_frame, width=50, height=5)
-        # 将cookies文本输入框放置到网格布局中
-        self.cookies_text.grid(row=5, column=1)
-        # 创建ticket标签
-        ticket_label = Label(self.verfication_code_frame, text="ticket", **STYTLE['codeLable'])
-        ticket_label.grid(row=4, column=0, sticky=W)
-        # ticket文本输入框
-        self.ticket_text = Text(self.verfication_code_frame, width=50, height=5)
-        self.ticket_text.grid(row=4, column=1)
+        # # cookies
+        # # 创建cookies标签
+        # cookies_label = Label(self.verfication_code_frame, text="cookies", **STYTLE["codeLable"])
+        # # 将cookies标签放置到网格布局中
+        # cookies_label.grid(row=5, column=0, sticky=W)
+        # # 创建cookies文本输入框
+        # self.cookies_text = Text(self.verfication_code_frame, width=50, height=5)
+        # # 将cookies文本输入框放置到网格布局中
+        # self.cookies_text.grid(row=5, column=1)
+        # # 创建ticket标签
+        # ticket_label = Label(self.verfication_code_frame, text="ticket", **STYTLE['codeLable'])
+        # ticket_label.grid(row=4, column=0, sticky=W)
+        # # ticket文本输入框
+        # self.ticket_text = Text(self.verfication_code_frame, width=50, height=5)
+        # self.ticket_text.grid(row=4, column=1)
 
-        # 一键续期
-        # 定义默认提示文本
-        self.default_text = "多手机号逗号间隔"
-        # 创建多测试号延期标签
-        nums_label = Label(self.verfication_code_frame, text="输入要延期测试账号", **STYTLE["codeLable"])
-        # 将多测试号延期标签放置到网格布局中
-        nums_label.grid(row=2, column=0, sticky=W)
-        # 创建多测试号输入框，设置初始文本和颜色
-        self.nums_text = Text(self.verfication_code_frame, width=50, height=5, foreground="gray")
-        self.nums_text.insert(1.0, self.default_text)
-        # 将多测试号输入框放置到网格布局中
-        self.nums_text.grid(row=2, column=1)
-        # 绑定鼠标点击事件，用于清除默认提示文本
-        self.nums_text.bind("<Button-1>", self.clear_nums_text_default_text)
-        self.nums_text.bind("<FocusOut>", self.nums_text_on_focus_out)
-        # 创建一键续期按钮，并绑定点击事件处理函数
-        nums_extension_bt = Button(self.verfication_code_frame, text="一键续期", command=self.nums_extension_bt_click_thread, **STYTLE["button"])
-        # 将一键续期按钮放置到网格布局中
-        nums_extension_bt.grid(row=1, column=0)
+        # # 一键续期
+        # # 定义默认提示文本
+        # self.default_text = "多手机号逗号间隔"
+        # # 创建多测试号延期标签
+        # nums_label = Label(self.verfication_code_frame, text="输入要延期测试账号", **STYTLE["codeLable"])
+        # # 将多测试号延期标签放置到网格布局中
+        # nums_label.grid(row=2, column=0, sticky=W)
+        # # 创建多测试号输入框，设置初始文本和颜色
+        # self.nums_text = Text(self.verfication_code_frame, width=50, height=5, foreground="gray")
+        # self.nums_text.insert(1.0, self.default_text)
+        # # 将多测试号输入框放置到网格布局中
+        # self.nums_text.grid(row=2, column=1)
+        # # 绑定鼠标点击事件，用于清除默认提示文本
+        # self.nums_text.bind("<Button-1>", self.clear_nums_text_default_text)
+        # self.nums_text.bind("<FocusOut>", self.nums_text_on_focus_out)
+        # # 创建一键续期按钮，并绑定点击事件处理函数
+        # nums_extension_bt = Button(self.verfication_code_frame, text="一键续期", command=self.nums_extension_bt_click_thread, **STYTLE["button"])
+        # # 将一键续期按钮放置到网格布局中
+        # nums_extension_bt.grid(row=1, column=0)
 
 
     def on_get_code_bt_click(self):
